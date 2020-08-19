@@ -1,0 +1,162 @@
+library(ncdf4)
+getwd()
+setwd('D:/Rtest/')
+
+
+a <- list.files('2018nc/')
+a
+b <- list.files('2018/')
+b
+dir_a <- paste('./2018nc/', a, sep = '')
+dir_a
+dir_b <- paste('./2018/', b, sep = '')
+dir_b
+
+n <- length(dir_b)
+library(ncdf4)
+for (i in 1:n) {
+  # read data
+  ####### write nc file ####
+  csv_data <- read.csv(file = dir_b[i],header = FALSE)
+  #date <- csv_data$V1
+  num <-length(csv_data$V1) 
+  # create dim 
+  dimX <- ncdim_def('lon','',1:1,unlim = FALSE,create_dimvar = FALSE)
+  dimy <- ncdim_def('lat','',1:1,unlim = FALSE,create_dimvar = FALSE)
+  dims <- ncdim_def('scalar','',1:1,unlim = FALSE,create_dimvar = FALSE)
+  c <- paste('days since ',substr(a[i],1,7) ,'-01 00:00:00',sep = '')
+  dimtime <- ncdim_def('time',longname = 'Time axis', units = c,vals = ((0:(num-1))/48.),unlim = FALSE,create_dimvar = TRUE,calendar = 'noleap')
+  
+  #mv <- 1.e30
+  EDGEE <- ncvar_def('EDGEE',longname = 'eastern edge in atmospheric data', units = 'degrees E', dims, prec = 'double')
+  EDGEN <- ncvar_def('EDGEN',longname = 'northern edge in atmospheric data', units = 'degrees N', dims, prec = 'double')
+  EDGES <- ncvar_def('EDGES',longname = 'southern edge in atmospheric data', units = 'degrees N', dims, prec = 'double')
+  EDGEW <- ncvar_def('EDGEW',longname = 'western edge in atmospheric data', units = 'degrees E', dims, prec = 'double')
+  FLDS <- ncvar_def('FLDS','W/m2',list(dimX, dimy, dimtime),longname = 'incident longwave (FLDS)',prec = 'double')
+  FSDS <- ncvar_def('FSDS','W/m2',list(dimX, dimy, dimtime),longname = 'incident solar (FSDS)',prec = 'double')
+  LAITXY <- ncvar_def('LAITXY', longname = 'latitude', units = 'degrees N', list(dimX,dimy),prec = 'double')
+  LONGXY <- ncvar_def('LONGXY', longname = 'longitude',units = 'degrees E', list(dimX,dimy),prec = 'double')
+  PRECTmms <- ncvar_def('PRECTmms','mm/s',list(dimX, dimy, dimtime),longname = 'precipitation (PRECTmms)',prec = 'double')
+  PSRF <- ncvar_def('PSRF','Pa',list(dimX, dimy, dimtime),longname = 'pressure at the lowest atm level (PSRF)',prec = 'double')
+  RH <- ncvar_def('RH','%',list(dimX, dimy, dimtime),longname = 'relative humidity at the lowest atm level (RH)',prec = 'double')
+  TBOT <- ncvar_def('TBOT','K',list(dimX, dimy, dimtime),longname = 'temperature at the lowest atm level (TBOT)',prec = 'double')
+  # time <- ncvar_def('time','days since 2005-01-01 00:00:00',dimtime,longname = 'Time axis',prec = 'double',missval = mv)
+  WIND <- ncvar_def('WIND','m/s',list(dimX, dimy, dimtime),longname = 'wind at the lowest atm level (WIND)',prec = 'double')
+  ZBOT <- ncvar_def('ZBOT','m',list(dimX, dimy, dimtime),longname = 'observational height',prec = 'double')
+  
+  # create new nc file 
+  
+  nc_data <- nc_create(filename = dir_a[i], list(EDGEE,EDGEN,EDGES,EDGEW,FLDS,FSDS,LAITXY,LONGXY,PRECTmms,PSRF,RH,TBOT,WIND,ZBOT))
+  
+  # input the data to var
+  m <- length(csv_data$V1)
+  ncvar_put(nc_data,EDGEE,133.52)
+  ncvar_put(nc_data,EDGEN,47.58)
+  ncvar_put(nc_data,EDGES,47.58)
+  ncvar_put(nc_data,EDGEW,133.52)
+  #### flds
+  flds <- csv_data$V9
+  flds_1 <- csv_data$V9
+  for(i in 1:m){
+    if(is.na(flds[i])==TRUE){
+      flds_1[i] = mean(csv_data$V9)
+    }
+  }
+  ncvar_put(nc_data,FLDS,flds_1)
+  #### fsds
+  fsds <- csv_data$V8
+  fsds_1 <- csv_data$V8
+  for(i in 1:m){
+    if(is.na(fsds[i])==TRUE){
+      fsds_1[i] = mean(csv_data$V8)
+    }
+  }
+  ncvar_put(nc_data,FSDS,fsds_1)
+  
+  ncvar_put(nc_data,LAITXY,47.58)
+  ncvar_put(nc_data,LONGXY,133.52)
+  
+  #### pr
+  pr <- csv_data$V7
+  pr_1 <- csv_data$V7
+  for(i in 1:m){
+    if(is.na(pr[i])==TRUE){
+      pr_1[i] = mean(csv_data$V7)
+    }
+  }
+  ncvar_put(nc_data,PRECTmms,pr_1)
+  #### ps
+  ps <- csv_data$V4
+  ps_1 <- csv_data$V4
+  for(i in 1:m){
+    if(is.na(ps[i])==TRUE){
+      ps_1[i] = mean(csv_data$V4)
+    }
+  }
+  ncvar_put(nc_data,PSRF,(ps_1*100.))
+  
+  
+  ######rh
+  rh <- csv_data$V6
+  rh_1 <- csv_data$V6
+  for(i in 1:m){
+    if(is.na(rh[i])==TRUE){
+      rh_1[i] = 100.
+    }
+    else{
+      if(rh[i] > 100){
+        rh_1[i] = 100.
+      }
+      else{
+        rh_1[i] = rh[i]
+      }
+    }
+  }
+  ncvar_put(nc_data,RH,rh_1)
+  
+  #### t
+  t <- csv_data$V5
+  t_1 <- csv_data$V5
+  for(i in 1:m){
+    if(is.na(t[i])==TRUE){
+      t_1[i] = mean(csv_data$V5)
+    }
+  }
+  ncvar_put(nc_data,TBOT,(t_1 + 273.15))
+  
+  ### wind
+  wind <- csv_data$V3
+  wind_1 <- csv_data$V3
+  for(i in 1:m){
+    if(is.na(wind[i])==TRUE){
+      wind_1[i] = 0.01
+    }
+    else{
+      if(wind[i] < 0.01){
+        wind_1[i] = 0.01
+      }
+      else{
+        wind_1[i] = wind[i]
+      }
+    }
+  }
+  ncvar_put(nc_data,WIND,wind_1)
+  #### fsds
+  z <- csv_data$V2
+  z_1 <- csv_data$V2
+  for(i in 1:m){
+    if(is.na(z[i])==TRUE){
+      z_1[i] = 2
+    }
+  }
+  ncvar_put(nc_data,ZBOT,z_1)
+  
+  # varid=0 means it is a global attribute
+  ncatt_put( nc_data, 0, "institute", "IGA") 
+  ncatt_put( nc_data, 0, "history", "Jun, 2020, the file was created at IGA for CLM-mircrobe simulation --Yunjiang Zuo: zuoyunjiang@iga.ac.cn")
+  ncatt_put( nc_data, 0, "site_location", "Sanjiang Mire Station, one of CERN sites in China, Lat: 47.58; Longitude: 133.52")
+  
+  ## close nc file
+  nc_close(nc_data)
+  
+}
