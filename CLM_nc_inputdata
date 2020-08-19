@@ -1,3 +1,8 @@
+####  merge code  ####
+#### Yunjiang Zuo --zuoyunjiang@iga.ac.cn ####
+####  2020-08--IGA   ####
+
+
 library(ncdf4)
 getwd()
 setwd('D:/Rtest/')
