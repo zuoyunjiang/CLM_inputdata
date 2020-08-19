@@ -1,0 +1,78 @@
+#### comparison of resluts ####
+####  Yunjiang Zuo ####
+####  2020-08 ####
+library(ncdf4)
+getwd()
+# install.packages('gdata')
+# library(gdata)
+
+# try_data <- nc_open(filename = 'try_transient_1418_spinup.clm2.h0.2012-01-01-00000.nc')
+try_data <- nc_open(filename = 'try_transient_spinup.clm2.h0.2012-01-01-00000.nc')
+OBS <- read.csv(file = '2012_CO2.csv',header = TRUE)
+#####  NEE  ######
+NEE_model <- ncvar_get(nc=try_data,varid = 'NEE')
+NEE_SJ <- ncvar_get()
+NEE_OBS <- OBS$NEE[1:153]
+NEE_model <- NEE_model*24*3600
+NEE_model
+NEE_OBS
+
+jpeg(filename = 'NEE_629.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+opar <- par(mar=c(4.5,5,5,2)+0.1)
+# opar
+plot(x=1:153,NEE_OBS,main = 'Change trend of NEE in the growing season',ylab=expression(NEE/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lwd=2,lty=1)
+lines(X=1:153,NEE_model[121:273],type="b",pch=22,col="blue",lwd=2,lty=1)
+axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
+axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
+legend('bottomright',legend = c('OBS','MODEL'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
+par(opar)
+dev.off()
+#######methane emission############
+
+## data input
+methane_model <- ncvar_get(nc = try_data,varid = 'CH4_SURF_NETFLUX')
+methane_sanjiang <- read.csv(file = '三江甲烷排放.csv',header = TRUE)
+# obs <- methane_obs
+
+methane_obs <- methane_sanjiang$X2012.CH4.mgm.2d.1.[1:153]
+methane_model <- methane_model[121:273]*1382400000  ##24*3600*16*1000  mol/m2/s-->mg/m2/d
+## plot
+jpeg(filename = 'methane.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+opar <- par(mar=c(4.5,5,5,2)+0.1)
+plot(x=1:153,methane_obs,main = 'Change trend of methane in the growing season',ylab=expression(methane/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lwd=2,lty=1)
+lines(X=1:153,methane_model,type="b",pch=22,col="blue",lwd=2,lty=1)
+axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
+axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
+legend('bottomright',legend = c('OBS','MODEL'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
+par(opar)
+dev.off()
+#### GPP #######
+GPP_MODEL <- ncvar_get(nc = try_data,varid = 'GPP')
+GPP_OBS <-  OBS$GPP[1:153]
+GPP_MODEL <- GPP_MODEL*24*3600
+
+##GRAPH
+jpeg(filename = 'GPP_629.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+opar <- par(mar=c(4.5,5,5,2)+0.1)
+plot(x=1:153,GPP_OBS,main = 'Change trend of GPP in the growing season',ylab=expression(NEE/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lty=1,lwd=2)
+lines(X=1:153,GPP_MODEL[121:273],type="b",pch=22,col="blue",lty=1,lwd=2)
+axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
+axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
+legend('topright',legend = c('OBS','MODEL'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
+par(opar)
+dev.off()
+
+######CMIP5 npp#####
+library(ncdf4)
+nppleaf <- nc_open(filename = 'nppLeaf_Lmon_IPSL-CM5A-LR_amip_r2i1p1_199901-200812.nc')
+npp <- ncvar_get(nc = nppleaf,varid = 'nppLeaf')
+sj_npp <- npp[37,24,]
+npp_aboveground <- ncvar_get(nc= try_data,varid = 'AGNPP')
+###
+jpeg(filename = 'AGNPP.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+opar <- par(mar=c(4.5,5,5,2)+0.1)
+plot(npp_aboveground,main = 'Change trend of AGNPP in the growing season',ylab=expression(AGNPP/gC*m^{-2}*s^{-1}),xlab ='days',type="b",pch=21,col="black",yaxt="n",xaxt = 'n',lty=1,lwd=2)
+axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
+axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
+par(opar)
+dev.off()
