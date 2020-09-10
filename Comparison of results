@@ -7,27 +7,82 @@ getwd()
 # library(gdata)
 
 # try_data <- nc_open(filename = 'try_transient_1418_spinup.clm2.h0.2012-01-01-00000.nc')
-try_data <- nc_open(filename = 'try_transient_spinup.clm2.h0.2012-01-01-00000.nc')
+try_data <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/结果/调整结果/9-10/zyj_transient_spinup.clm2.h0.2012-01-01-00000 (3).nc')
+# try_data_1 <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/结果/调整结果/8-27/try_transient_1_spinup.clm2.h0.2012-01-01-00000.nc')
 OBS <- read.csv(file = '2012_CO2.csv',header = TRUE)
 #####  NEE  ######
 NEE_model <- ncvar_get(nc=try_data,varid = 'NEE')
-NEE_SJ <- ncvar_get()
+# NEE_model_1 <- ncvar_get(nc=try_data_1,varid = 'NEE')
+#NEE_SJ <- ncvar_get()
 NEE_OBS <- OBS$NEE[1:153]
+
 NEE_model <- NEE_model*24*3600
+# NEE_model_1 <-NEE_model_1*24*3600
 NEE_model
 NEE_OBS
 
-jpeg(filename = 'NEE_629.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+jpeg(filename = 'NEE_9101.png',width = 1200,height = 900,units = 'px',pointsize = 24)
 opar <- par(mar=c(4.5,5,5,2)+0.1)
 # opar
 plot(x=1:153,NEE_OBS,main = 'Change trend of NEE in the growing season',ylab=expression(NEE/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lwd=2,lty=1)
-lines(X=1:153,NEE_model[121:273],type="b",pch=22,col="blue",lwd=2,lty=1)
+lines(X=1:153,NEE_model[121:273],type="p",pch=22,col="blue",lwd=2,lty=1)
 axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
 axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
 legend('bottomright',legend = c('OBS','MODEL'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
 par(opar)
 dev.off()
-#######methane emission############
+
+###contrast###
+try_data_1 <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/结果/调整结果/9-10/zyj_transient_spinup.clm2.h0.2012-01-01-00000 (2).nc')
+NEE_model_1 <- ncvar_get(nc=try_data_1,varid = 'NEE')
+NEE_model_1 <-NEE_model_1*24*3600
+
+jpeg(filename = 'NEEc_9101.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+opar <- par(mar=c(4.5,5,5,2)+0.1)
+# opar
+plot(x=1:153,NEE_model_1[121:273],main = 'contrast the change trend of NEE in the growing season',ylab=expression(NEE/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lwd=2,lty=1)
+lines(X=1:153,NEE_model[121:273],type="p",pch=22,col="blue",lwd=2,lty=1)
+axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
+axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
+legend('bottomright',legend = c('before','later'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
+par(opar)
+dev.off()
+
+
+#### GPP #######
+GPP_MODEL <- ncvar_get(nc = try_data,varid = 'GPP')
+GPP_OBS <-  OBS$GPP[1:153]
+GPP_MODEL <- GPP_MODEL*24*3600
+
+##GRAPH
+jpeg(filename = 'GPP_9101.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+opar <- par(mar=c(4.5,5,5,2)+0.1)
+plot(x=1:153,GPP_OBS,main = 'Change trend of GPP in the growing season',ylab=expression(NEE/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lty=1,lwd=2)
+lines(X=1:153,GPP_MODEL[121:273],type="b",pch=22,col="blue",lty=1,lwd=2)
+axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
+axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
+legend('topright',legend = c('OBS','MODEL'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
+par(opar)
+dev.off()
+
+#### contrast##
+# try_data_1 <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/结果/调整结果/9-9/zyj_transient_spinup.clm2.h0.2012-01-01-00000 (2).nc')
+GPP_model_1 <- ncvar_get(nc=try_data_1,varid = 'GPP')
+GPP_model_1 <-GPP_model_1*24*3600
+
+jpeg(filename = 'GPPc_9101.png',width = 1200,height = 900,units = 'px',pointsize = 24)
+opar <- par(mar=c(4.5,5,5,2)+0.1)
+# opar
+plot(x=1:153,GPP_model_1[121:273],main = 'contrast the change trend of GPP in the growing season',ylab=expression(NEE/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lwd=2,lty=1)
+lines(X=1:153,GPP_MODEL[121:273],type="p",pch=22,col="blue",lwd=2,lty=1)
+axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
+axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
+legend('topright',legend = c('before','later'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
+par(opar)
+dev.off()
+
+
+####### methane emission ############
 
 ## data input
 methane_model <- ncvar_get(nc = try_data,varid = 'CH4_SURF_NETFLUX')
@@ -44,21 +99,6 @@ lines(X=1:153,methane_model,type="b",pch=22,col="blue",lwd=2,lty=1)
 axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
 axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
 legend('bottomright',legend = c('OBS','MODEL'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
-par(opar)
-dev.off()
-#### GPP #######
-GPP_MODEL <- ncvar_get(nc = try_data,varid = 'GPP')
-GPP_OBS <-  OBS$GPP[1:153]
-GPP_MODEL <- GPP_MODEL*24*3600
-
-##GRAPH
-jpeg(filename = 'GPP_629.png',width = 1200,height = 900,units = 'px',pointsize = 24)
-opar <- par(mar=c(4.5,5,5,2)+0.1)
-plot(x=1:153,GPP_OBS,main = 'Change trend of GPP in the growing season',ylab=expression(NEE/g*m^{-2}*d^{-1}),xlab ='days',type="b",pch=21,col="red",yaxt="n",xaxt = 'n',lty=1,lwd=2)
-lines(X=1:153,GPP_MODEL[121:273],type="b",pch=22,col="blue",lty=1,lwd=2)
-axis(side = 1,col.axis="black",cex.axis=1,tck=-0.01)
-axis(side = 2,col.axis="black",cex.axis=1,tck=-0.01,mai=1)
-legend('topright',legend = c('OBS','MODEL'),col = c('red','blue'),lty = 1,lwd=2,pch = c(21,22))
 par(opar)
 dev.off()
 
