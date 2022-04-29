@@ -1,0 +1,222 @@
+## creat 1hour -> 0.5 hour
+library(readxl)
+library(ncdf4)
+library(sqldf)
+
+dir <- list.dirs('F:/E盘/三江站小气候数据/小气候数据/历年洪河小气候数据/')
+dir <- dir[c(13,18,21,24,25)]
+fsds <- matrix(9999)
+flds <- matrix(9999)
+for(i in 1:5){
+  i <- 4
+  file <- list.files(dir[i])
+  file1 <- paste(dir[i],'/',file,sep = '')
+  for(j in 1:12){
+  nsheet <- paste('D5',c(1:31),sep = '')
+    for(k in 1:31){
+      data <- read_excel(file1[j],sheet = nsheet[k])
+      dr <- as.matrix(data[5:28,2])
+      lr <- as.matrix(data[5:28,4])
+      fsds <- rbind(fsds,dr)
+      flds <- rbind(flds,lr)
+    }
+  }
+}
+RA <- read.csv("D:/AAAA-资料E盘/CLM/DATA/microbe/fsds-FLDS.csv",header =T)
+RA1 <- RA[,1]
+LR <- matrix(0)
+n <- length(RA1)
+for(i in 1:n){
+  f <- RA1[c(i,i+1)]
+  x2 <- sum(f)/2
+  LR <- rbind(LR,f[1],x2)
+}
+RA2 <- RA[,2]
+LR1 <- matrix(RA2[1])
+n <- length(RA2)
+for(i in 1:n){
+  f <- RA2[c(i,i+1)]
+  x2 <- sum(f)/2
+  LR1 <- rbind(LR1,f[1],x2)
+}
+
+fslds <- cbind(LR,LR1)
+write.csv(fslds,file = 'D:/AAAA-资料E盘/CLM/DATA/microbe/30minfsfl.csv')
+
+####  inputdata code  ####
+#### Yunjiang Zuo --zuoyunjiang@iga.ac.cn ####
+####  2020-08--IGA   ####
+
+
+library(ncdf4)
+getwd()
+setwd('D:/Rtest/')
+
+#input file name to a
+a <- list.files('./new atm 2005-2019/')
+a
+#create the file path
+dir_b <- paste('./nc_data2/', a, sep = '')
+dir_b
+
+
+n <- length(dir_b)
+c_data <- read.csv('D:/AAAA-资料E盘/CLM/DATA/microbe/2005-2018-2.csv',header = T)
+for (i in 1:n) {
+  # read data
+  merge.data <- c_data[which(c_data$date == a[i]),]
+  # print(merge.data)
+  v1 <- merge.data$ZBOT
+  v2 <- merge.data$WIND
+  v3 <- merge.data$PSRF
+  v4 <- merge.data$TBOT
+  v5 <- merge.data$RH
+  v6 <- merge.data$PRECTmms
+  v7 <- merge.data$FSDS
+  v8 <- merge.data$FLDS
+  
+  
+  ####### write nc file ####
+  #date <- csv_data$V1
+  num <-length(v1) 
+  # create dim 
+  dimX <- ncdim_def('lon','',1:1,unlim = FALSE,create_dimvar = FALSE)
+  dimy <- ncdim_def('lat','',1:1,unlim = FALSE,create_dimvar = FALSE)
+  dims <- ncdim_def('scalar','',1:1,unlim = FALSE,create_dimvar = FALSE)
+  c <- paste('days since ',substr(a[i],1,7) ,'-01 00:00:00',sep = '')
+  dimtime <- ncdim_def('time',longname = 'Time axis', units = c,vals = ((0:(num-1))/48.),unlim = FALSE,create_dimvar = TRUE,calendar = 'noleap')
+  
+  #mv <- 1.e30
+  EDGEE <- ncvar_def('EDGEE',longname = 'eastern edge in atmospheric data', units = 'degrees E', dims, prec = 'double')
+  EDGEN <- ncvar_def('EDGEN',longname = 'northern edge in atmospheric data', units = 'degrees N', dims, prec = 'double')
+  EDGES <- ncvar_def('EDGES',longname = 'southern edge in atmospheric data', units = 'degrees N', dims, prec = 'double')
+  EDGEW <- ncvar_def('EDGEW',longname = 'western edge in atmospheric data', units = 'degrees E', dims, prec = 'double')
+  FLDS <- ncvar_def('FLDS','W/m2',list(dimX, dimy, dimtime),longname = 'incident longwave (FLDS)',prec = 'double')
+  FSDS <- ncvar_def('FSDS','W/m2',list(dimX, dimy, dimtime),longname = 'incident solar (FSDS)',prec = 'double')
+  LATIXY <- ncvar_def('LATIXY', longname = 'latitude', units = 'degrees N', list(dimX,dimy),prec = 'double')
+  LONGXY <- ncvar_def('LONGXY', longname = 'longitude',units = 'degrees E', list(dimX,dimy),prec = 'double')
+  PRECTmms <- ncvar_def('PRECTmms','mm/s',list(dimX, dimy, dimtime),longname = 'precipitation (PRECTmms)',prec = 'double')
+  PSRF <- ncvar_def('PSRF','Pa',list(dimX, dimy, dimtime),longname = 'pressure at the lowest atm level (PSRF)',prec = 'double')
+  RH <- ncvar_def('RH','%',list(dimX, dimy, dimtime),longname = 'relative humidity at the lowest atm level (RH)',prec = 'double')
+  TBOT <- ncvar_def('TBOT','K',list(dimX, dimy, dimtime),longname = 'temperature at the lowest atm level (TBOT)',prec = 'double')
+  # time <- ncvar_def('time','days since 2005-01-01 00:00:00',dimtime,longname = 'Time axis',prec = 'double',missval = mv)
+  WIND <- ncvar_def('WIND','m/s',list(dimX, dimy, dimtime),longname = 'wind at the lowest atm level (WIND)',prec = 'double')
+  ZBOT <- ncvar_def('ZBOT','m',list(dimX, dimy, dimtime),longname = 'observational height',prec = 'double')
+  
+  # create new nc file 
+  
+  nc_data <- nc_create(filename = dir_b[i], list(EDGEE,EDGEN,EDGES,EDGEW,FLDS,FSDS,LATIXY,LONGXY,PRECTmms,PSRF,RH,TBOT,WIND,ZBOT))
+  
+  # input the data to var
+  m <- length(v1)
+  ncvar_put(nc_data,EDGEE,134.00)
+  ncvar_put(nc_data,EDGEN,48.00)
+  ncvar_put(nc_data,EDGES,47.50)
+  ncvar_put(nc_data,EDGEW,133.50)
+  #### flds
+  flds <- v8
+  flds_1 <- v8
+  for(i in 1:m){
+    if(is.na(flds[i])==TRUE){
+      flds_1[i] = mean(v8)
+    }
+  }
+  ncvar_put(nc_data,FLDS,flds_1)
+  #### fsds
+  fsds <- v7
+  fsds_1 <- v7
+  for(i in 1:m){
+    if(is.na(fsds[i])==TRUE){
+      fsds_1[i] = mean(v7)
+    }
+  }
+  ncvar_put(nc_data,FSDS,fsds_1)
+  
+  ncvar_put(nc_data,LATIXY,47.75)
+  ncvar_put(nc_data,LONGXY,133.75)
+  
+  #### pr
+  pr <- v6
+  pr_1 <- v6
+  for(i in 1:m){
+    if(is.na(pr[i])==TRUE){
+      pr_1[i] = mean(v6)
+    }
+  }
+  ncvar_put(nc_data,PRECTmms,pr_1)
+  #### ps
+  ps <- v3
+  ps_1 <- v3
+  for(i in 1:m){
+    if(is.na(ps[i])==TRUE){
+      ps_1[i] = mean(v3)
+    }
+  }
+  ncvar_put(nc_data,PSRF,ps_1)
+  
+  
+  ######rh
+  rh <- v5
+  rh_1 <- v5
+  for(i in 1:m){
+    if(is.na(rh[i])==TRUE){
+      rh_1[i] = 100.
+    }
+    else{
+      if(rh[i] > 100){
+        rh_1[i] = 100.
+      }
+      else{
+        rh_1[i] = rh[i]
+      }
+    }
+  }
+  ncvar_put(nc_data,RH,rh_1)
+  
+  #### t
+  t <- v4
+  t_1 <- v4
+  for(i in 1:m){
+    if(is.na(t[i])==TRUE){
+      t_1[i] = mean(v4)
+    }
+  }
+  ncvar_put(nc_data,TBOT,t_1)
+  
+  ### wind
+  wind <- v2
+  wind_1 <- v2
+  for(i in 1:m){
+    if(is.na(wind[i])==TRUE){
+      wind_1[i] = 0.01
+    }
+    else{
+      if(wind[i] < 0.01){
+        wind_1[i] = 0.01
+      }
+      else{
+        wind_1[i] = wind[i]
+      }
+    }
+  }
+  ncvar_put(nc_data,WIND,wind_1)
+  #### z
+  z <- v1
+  z_1 <- v1
+  for(i in 1:m){
+    if(is.na(z[i])==TRUE){
+      z_1[i] = 2
+    }
+  }
+  ncvar_put(nc_data,ZBOT,z_1)
+  
+  # varid=0 means it is a global attribute
+  ncatt_put( nc_data, 0, "institute", "IGA") 
+  ncatt_put( nc_data, 0, "history", "Jun, 2022, the file was created at IGA for CLM-mircrobe simulation --Yunjiang Zuo  zuoyunjiang@iga.ac.cn")
+  ncatt_put( nc_data, 0, "site_location", "Sanjiang Mire Station, one of CERN sites in China, Lat: 47.58; Longitude: 133.52")
+  
+  ## close nc file
+  # nc_close(merge.data)
+  nc_close(nc_data)
+  
+}
