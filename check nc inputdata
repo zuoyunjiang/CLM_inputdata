@@ -1,0 +1,42 @@
+
+#input file name to a
+a <- list.files('F:/learning/21.sallie fen/')
+# a <- a[-13]
+#create the file path
+dir <- paste('F:/learning/21.sallie fen/',a ,sep = '')
+dir
+# file number
+n <- length(dir)
+n
+library(ncdf4)
+merge.data <- nc_open(filename = dir[1])
+# print(merge.data)
+
+v1 <- ncvar_get(nc = merge.data, varid = 'ZBOT')
+v2 <- ncvar_get(nc = merge.data, varid = 'WIND')
+v3 <- ncvar_get(nc = merge.data, varid = 'PSRF')
+v4 <- ncvar_get(nc = merge.data, varid = 'TBOT')
+v5 <- ncvar_get(nc = merge.data, varid = 'RH')
+v6 <- ncvar_get(nc = merge.data, varid = 'PRECTmms')
+v7 <- ncvar_get(nc = merge.data, varid = 'FSDS')
+v8 <- ncvar_get(nc = merge.data, varid = 'FLDS')
+m <- length(v1)
+date <- rep(a[1],m)
+merge.data <- cbind(date,v1,v2,v3,v4,v5,v6,v7,v8)
+for(i in 2:n){
+  new.data <- nc_open(filename = dir[i])
+  v1 <- ncvar_get(nc = new.data, varid = 'ZBOT')
+  v2 <- ncvar_get(nc = new.data, varid = 'WIND')
+  v3 <- ncvar_get(nc = new.data, varid = 'PSRF')
+  v4 <- ncvar_get(nc = new.data, varid = 'TBOT')
+  v5 <- ncvar_get(nc = new.data, varid = 'RH')
+  v6 <- ncvar_get(nc = new.data, varid = 'PRECTmms')
+  v7 <- ncvar_get(nc = new.data, varid = 'FSDS')
+  v8 <- ncvar_get(nc = new.data, varid = 'FLDS')
+  m <- length(v1)
+  date <- rep(a[i],m)
+  new.data <- cbind(date,v1,v2,v3,v4,v5,v6,v7,v8)
+  merge.data <- rbind(merge.data, new.data)
+}
+colnames(merge.data) <- c('date','ZBOT','WIND', 'PSRF','TBOT','RH','PRECTmms','FSDS','FLDS')
+write.csv(merge.data, file = 'F:/learning/21.sallie fen/2000-2016.csv', row.names = F)
