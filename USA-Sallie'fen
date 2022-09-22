@@ -41,7 +41,7 @@ for(k in 1:n){
   # n <- length(lrad_dir)
   lrad_data <- nc_open(filename = temp_dir[k])
   lrad <- ncvar_get(lrad_data, varid = 'FLDS')
-  FLDS <- lrad[503,266,]
+  FLDS <- lrad[577,266,]
   FLDS_num <- length(FLDS)
   nc_close(lrad_data)
   #cha zhi
@@ -93,7 +93,7 @@ for(k in 1:n){
   # n <- length(srad_dir)
   srad_data <- nc_open(filename = lrad_dir[k])
   srad <- ncvar_get(srad_data, varid = 'FSDS')
-  FSDS <- srad[503,266,]
+  FSDS <- srad[577,266,]
   FSDS_num <- length(FSDS)
   nc_close(srad_data)
   #cha zhi
@@ -146,7 +146,7 @@ for(k in 1:n){
   # n <- length(rain_dir)
   rain_data <- nc_open(filename = rain_dir[k])
   rain <- ncvar_get(rain_data, varid = 'PRECTmms')
-  PRECTmms <- rain[503,266,]
+  PRECTmms <- rain[577,266,]
   PRECTmms_num <- length(PRECTmms)
   nc_close(rain_data)
   #cha zhi
@@ -199,7 +199,7 @@ for(k in 1:n){
   # n <- length(pres_dir)
   pres_data <- nc_open(filename = temp_dir[k])
   pres <- ncvar_get(pres_data, varid = 'PSRF')
-  PSRF <- pres[503,266,]
+  PSRF <- pres[577,266,]
   PSRF_num <- length(PSRF)
   nc_close(pres_data)
   #cha zhi
@@ -252,7 +252,7 @@ for(k in 1:n){
   # n <- length(temp_dir)
   temp_data <- nc_open(filename = temp_dir[k])
   temp <- ncvar_get(temp_data, varid = 'TBOT')
-  TBOT <- temp[503,266,]
+  TBOT <- temp[577,266,]
   TBOT_num <- length(TBOT)
   nc_close(temp_data)
   #cha zhi
@@ -305,7 +305,7 @@ for(k in 1:n){
   # n <- length(wind_dir)
   wind_data <- nc_open(filename = temp_dir[k])
   wind <- ncvar_get(wind_data, varid = 'WIND')
-  wind <- wind[503,266,]
+  wind <- wind[577,266,]
   wind_num <- length(wind)
   nc_close(wind_data)
   #cha zhi
@@ -363,7 +363,7 @@ for(k in 1:n){
   # n <- length(shum_dir)
   shum_data <- nc_open(filename = temp_dir[k])
   shum <- ncvar_get(shum_data, varid = 'QBOT')
-  shum <- shum[503,266,]
+  shum <- shum[577,266,]
   shum_num <- length(shum)
   nc_close(shum_data)
   
