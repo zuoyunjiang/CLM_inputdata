@@ -1,0 +1,623 @@
+###### CBS S-INDEX #####
+######Yunjiang Zuo######
+#######2021-4-15########
+library(ncdf4)
+require(lattice)
+library(pheatmap)
+library(RColorBrewer)
+library(viridisLite)
+library(progress)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+############################data input ########################################
+setwd('D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/s-index/')
+Pn <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/3-31-origin/transient_cbs.clm2.h0.2011-01-01-00000.nc')
+Pn_ch4 <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/transient/4-1/transient_cbs.clm2.h0.2016-01-01-00000 (5).nc')
+GPP_N <- ncvar_get(nc = Pn,varid = 'GPP')
+NEE_N <- ncvar_get(nc = Pn,varid = 'NEE')
+CH4_N <- ncvar_get(nc = Pn_ch4,varid = 'CH4_SURF_NETFLUX')
+ER_N <- ncvar_get(nc = Pn, varid = 'ER')
+NPP_N <- ncvar_get(nc = Pn, varid = 'NPP')
+
+## ALTER
+alterdir <- list.dirs('D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/s-index/')
+varname <- list.files('D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/s-index/')
+alterdir <- alterdir[c(-1,-18,-19)]
+varname <- varname[c(-17,-18)]
+posi_dir <- alterdir[seq(2,36,2)]
+nege_dir <- alterdir[seq(1,36,2)]
+var1 <- varname[seq(1,36,2)]
+var2 <- varname[seq(2,36,2)]
+
+#################-20 sindex######################################
+sindex <- matrix(nr = 18, nc = 6) ## CREAT MATRIX 50*6
+numdir <- length(nege_dir)
+j <- 1
+
+repeat{
+  file <- list.files(nege_dir[j])
+  filedir <- paste(nege_dir[j],'/',file,sep ='')
+  sindex_1 <- matrix(nr = 366,nc = 6)## CREAT MATRIX 366*6
+  Pa <- nc_open(filename = filedir[1])
+  Pa_ch4 <- nc_open(filename = filedir[2])
+  GPP_A <- ncvar_get(nc = Pa,varid = 'GPP')
+  NEE_A <- ncvar_get(nc = Pa,varid = 'NEE')
+  CH4_A <- ncvar_get(nc = Pa_ch4,varid = 'CH4_SURF_NETFLUX')
+  ER_A <- ncvar_get(nc = Pa, varid = 'ER')
+  NPP_A <- ncvar_get(nc = Pa, varid = 'NPP')
+  
+  ##gpp
+  data <- data.frame(GPP_A,GPP_N)
+  s_gpp <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(-0.2))
+    sindex_1[i,1] <- s1
+    # s_gpp <- s_gpp+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##nee
+  data <- data.frame(NEE_A,NEE_N)
+  s_nee <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(-0.2))
+    sindex_1[i,2] <- s1
+    # s_nee <- s_nee+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##er
+  data <- data.frame(ER_A,ER_N)
+  s_er <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(-0.2))
+    sindex_1[i,3] <- s1
+    # s_er <- s_er+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##npp
+  data <- data.frame(NPP_A,NPP_N)
+  s_npp <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(-0.2))
+    sindex_1[i,4] <- s1
+    # s_npp <- s_npp+s
+    # index_1[i,1] <- s1s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##ch4
+  data <- data.frame(CH4_A,CH4_N)
+  s_ch4 <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(-0.2))
+    sindex_1[i,5] <- s1
+    # s_ch4 <- s_ch4+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  sindex[j,1] <- var1[j]
+  sindex[j,2] <- mean(sindex_1[c(-179),1],na.rm = T)#gpp
+  sindex[j,3] <- mean(sindex_1[c(-316),2],na.rm = T)#nee
+  sindex[j,4] <- mean(sindex_1[c(-316),3],na.rm = T)#er
+  sindex[j,5] <- mean(sindex_1[c(-316),4],na.rm = T)#npp
+  sindex[j,6] <- mean(sindex_1[,5],na.rm = T)#ch4
+  
+  j <- j+1
+  if(j >18){
+    break
+  }
+}
+write.csv(sindex,file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex-20-2.csv')
+#####################20 sindex###################################
+####day#####
+sindex <- matrix(nr = 18, nc = 6) ## CREAT MATRIX 50*6
+numdir <- length(posi_dir)
+j <- 1
+
+repeat{
+  file <- list.files(posi_dir[j])
+  filedir <- paste(posi_dir[j],'/',file,sep ='')
+  sindex_1 <- matrix(nr = 366,nc = 6)## CREAT MATRIX 366*6
+  Pa <- nc_open(filename = filedir[1])
+  Pa_ch4 <- nc_open(filename = filedir[2])
+  GPP_A <- ncvar_get(nc = Pa,varid = 'GPP')
+  NEE_A <- ncvar_get(nc = Pa,varid = 'NEE')
+  CH4_A <- ncvar_get(nc = Pa_ch4,varid = 'CH4_SURF_NETFLUX')
+  ER_A <- ncvar_get(nc = Pa, varid = 'ER')
+  NPP_A <- ncvar_get(nc = Pa, varid = 'NPP')
+  
+  ##gpp
+  data <- data.frame(GPP_A,GPP_N)
+  s_gpp <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(0.2))
+    sindex_1[i,1] <- s1
+    # s_gpp <- s_gpp+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##nee
+  data <- data.frame(NEE_A,NEE_N)
+  s_nee <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(0.2))
+    sindex_1[i,2] <- s1
+    # s_nee <- s_nee+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##er
+  data <- data.frame(ER_A,ER_N)
+  s_er <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(0.2))
+    sindex_1[i,3] <- s1
+    # s_er <- s_er+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##npp
+  data <- data.frame(NPP_A,NPP_N)
+  s_npp <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(0.2))
+    sindex_1[i,4] <- s1
+    # s_npp <- s_npp+s
+    # index_1[i,1] <- s1s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  ##ch4
+  data <- data.frame(CH4_A,CH4_N)
+  s_ch4 <- 0.0
+  i <- 1
+  repeat{
+    data <- data[which(rowSums(data==0)==0),]
+    n <- length(rownames(data))
+    s1 <- ((data[i,1]-data[i,2]))/(data[i,2]*(0.2))
+    sindex_1[i,5] <- s1
+    # s_ch4 <- s_ch4+s1
+    i <- i+1
+    if(i>n){
+      break
+    }
+  }
+  sindex[j,1] <- var2[j]
+  sindex[j,2] <- mean(sindex_1[c(-179),1],na.rm = T)#gpp
+  sindex[j,3] <- mean(sindex_1[c(-316),2],na.rm = T)#nee
+  sindex[j,4] <- mean(sindex_1[c(-316),3],na.rm = T)#er
+  sindex[j,5] <- mean(sindex_1[c(-316),4],na.rm = T)#npp
+  sindex[j,6] <- mean(sindex_1[,5],na.rm = T)#ch4
+  
+  j <- j+1
+  if(j >18){
+    break
+  }
+}
+write.csv(sindex,file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex+20-2.csv')
+###### year ##########
+sindex <- matrix(nr = 18, nc = 6) ## CREAT MATRIX 50*6
+numdir <- length(nege_dir)
+j <- 1
+repeat{
+  file <- list.files(nege_dir[j])
+  filedir <- paste(nege_dir[j],'/',file,sep ='')
+  sindex_1 <- matrix(nr = 366,nc = 6)## CREAT MATRIX 366*6
+  Pa <- nc_open(filename = filedir[1])
+  Pa_ch4 <- nc_open(filename = filedir[2])
+  GPP_A <- ncvar_get(nc = Pa,varid = 'GPP')
+  NEE_A <- ncvar_get(nc = Pa,varid = 'NEE')
+  CH4_A <- ncvar_get(nc = Pa_ch4,varid = 'CH4_SURF_NETFLUX')
+  ER_A <- ncvar_get(nc = Pa, varid = 'ER')
+  NPP_A <- ncvar_get(nc = Pa, varid = 'NPP')
+  
+  sindex[j,1] <- var1[j]
+  sindex[j,2] <- (sum(GPP_A)-sum(GPP_N))/(sum(GPP_N)*(-0.2))#gpp
+  sindex[j,3] <- (sum(NEE_A)-sum(NEE_N))/(sum(NEE_N)*(-0.2))#nee
+  sindex[j,4] <- (sum(ER_A)-sum(ER_N))/(sum(ER_N)*(-0.2))#er
+  sindex[j,5] <- (sum(NPP_A)-sum(NPP_N))/(sum(NPP_N)*(-0.2))#npp
+  sindex[j,6] <- (sum(CH4_A)-sum(CH4_N))/(sum(CH4_N)*(-0.2))#ch4
+  
+  j <- j+1
+  if(j >18){
+    break
+  }
+}
+write.csv(sindex,file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex-20-3.csv')
+
+sindex <- matrix(nr = 18, nc = 6) ## CREAT MATRIX 50*6
+numdir <- length(posi_dir)
+j <- 1
+
+repeat{
+  file <- list.files(posi_dir[j])
+  filedir <- paste(posi_dir[j],'/',file,sep ='')
+  sindex_1 <- matrix(nr = 366,nc = 6)## CREAT MATRIX 366*6
+  Pa <- nc_open(filename = filedir[1])
+  Pa_ch4 <- nc_open(filename = filedir[2])
+  GPP_A <- ncvar_get(nc = Pa,varid = 'GPP')
+  NEE_A <- ncvar_get(nc = Pa,varid = 'NEE')
+  CH4_A <- ncvar_get(nc = Pa_ch4,varid = 'CH4_SURF_NETFLUX')
+  ER_A <- ncvar_get(nc = Pa, varid = 'ER')
+  NPP_A <- ncvar_get(nc = Pa, varid = 'NPP')
+  sindex[j,1] <- var2[j]
+  sindex[j,2] <- (sum(GPP_A)-sum(GPP_N))/(sum(GPP_N)*(0.2))#gpp
+  sindex[j,3] <- (sum(NEE_A)-sum(NEE_N))/(sum(NEE_N)*(0.2))#nee
+  sindex[j,4] <- (sum(ER_A)-sum(ER_N))/(sum(ER_N)*(0.2))#er
+  sindex[j,5] <- (sum(NPP_A)-sum(NPP_N))/(sum(NPP_N)*(0.2))#npp
+  sindex[j,6] <- (sum(CH4_A)-sum(CH4_N))/(sum(CH4_N)*(0.2))#ch4
+  
+  j <- j+1
+  if(j >18){
+    break
+  }
+}
+write.csv(sindex,file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex+20-3.csv')
+#####################
+#################### heatmap #####################################
+
+sindex <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex-20.csv')
+
+rownames(sindex)<-sindex[,1]
+sindex <- sindex[,-1]
+data_matrix <- data.matrix(sindex)
+data_matrix <- data_matrix/2.26
+data_matrix[which(data_matrix[,4] > 0.4),4] <- 0.4
+pal=brewer.pal(11,"RdYlBu")
+# pal=brewer.pal(11,"Spectral")
+# pal <- colorRampPalette(colors = c("red",'white',"blue"))(41)#,'white'
+# pal=heat.colors(15)
+# breaks<-seq(-1,1,0.2)
+breaks<-seq(-0.4,0.4,0.1)
+
+#Create layout with 1 row and 2 columns (for the heatmap and scale); the heatmap column is 8 times as wide as the scale column
+
+layout(matrix(data=c(1,2), nrow=1, ncol=2), widths=c(8,1), heights=c(1,1))
+
+#Set margins for the heatmap
+par(mar = c(12,10,4,2),oma=c(0.2,0.2,0.2,0.2),mex=0.5)           
+
+
+image(x=1:nrow(data_matrix),y=1:ncol(data_matrix), 	
+      z=data_matrix,
+      axes=FALSE,
+      xlab="",
+      ylab="",
+      col=pal[1:(length(breaks)-1)], 
+      breaks=breaks,
+      main="Sindex Heat Map")
+# text(x=1:nrow(data_matrix)+0.75, y=par("usr")[4] + 1.25, 
+     # srt = 45, adj = 1, labels = rownames(data_matrix), 
+     # xpd = TRUE)
+axis(1,at=1:nrow(data_matrix),labels=rownames(data_matrix), col="white",las=2)
+
+axis(2,at=1:ncol(data_matrix),labels=colnames(data_matrix), col="white",las=1)
+
+abline(h=c(1:ncol(data_matrix))+0.5, 
+       v=c(1:nrow(data_matrix))+0.5, col="white",lwd=2,xpd=FALSE)
+
+breaks2<-breaks[-length(breaks)]
+
+par(mar = c(5,1,4,7)) 
+
+# If you get a figure margins error while running the above code, enlarge the plot device or adjust the margins so that the graph and scale fit within the device.
+
+image(x=1, y=0:length(breaks2),z=t(matrix(breaks2))*1.001,
+      col=pal[1:length(breaks)-1],
+      axes=FALSE,
+      breaks=breaks,
+      xlab="", ylab="",
+      xaxt="n")
+
+axis(4,at=c(1,(length(breaks)/2),length(breaks2)), labels=c(-0.4,0,0.4), col="white", las=1)
+
+# abline(h=c(1:length(breaks2)),col="white",lwd=2,xpd=F)
+
+
+
+###############################AAAAAAAA###################################################
+sindex <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex-20.csv')
+sindex <- melt(sindex)
+
+Limitcode=c(-0.01,0.01) #Percent
+legendbreakcode<-c(-0.01, -0.005,0 ,0.005, 0.01)
+colorcode=c("blue","white","red") #Percent
+txtax<-c(0:14)+0.75
+txta<-c("-")
+xinterceptSet<-c(1:15)
+ggplot(sindex, aes(x=varname,y=variable,fill=value))+
+  geom_tile(color="white", size=0.1) + 
+  theme_bw() + 
+  scale_fill_gradientn(name="Sensitivity \nIndex",colours=colorcode,breaks=legendbreakcode,limits=Limitcode,oob=scales::squish)+
+  scale_x_discrete(labels = c('AceProdACmax','bdnr','br_mr','DeadH2Methanogens', 'k_dom', 'dom_diffus','dsladlai','flnr','GrowACEMethanogens','GrowH2Methanogens', 'grperc', 'KACE', 'rootleaf',  
+                              'YAceMethanogens','YH2Methanogens'))+
+  scale_y_discrete(labels=c('GPP','NEE','ER','NPP','CH4'))+
+  labs(subtitle = "A - ")+
+  annotate(geom="text",x=txtax,y=0.3,label=txta,size =6,hjust ="bottom",vjust ="bottom")+
+  coord_equal()+
+  theme(
+    plot.margin=unit(c(1,1,1,2), "cm"),
+    legend.position='right',
+    legend.margin = margin(1, 1, 1, -5),
+    axis.ticks.x=element_blank(),
+    axis.title.x =element_blank(),
+    axis.title.y=element_blank(),
+    axis.text.y = element_text(size=12,color="black"),
+    axis.text.x = element_text(size=12,color="black",hjust=1,vjust=-0.1,angle = 90),
+    legend.text=element_text(size=8),
+    legend.title =element_text(size=8),
+    legend.key.size =unit(0.9,'cm'),
+    legend.key.width=unit(0.2,'cm'),
+    legend.key=element_rect(colour = "transparent", fill = "white"),
+    legend.background=element_rect(fill="transparent"),
+    panel.grid=element_blank()
+  )
+#################### new a #############
+sindex <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex-20.csv')
+sindex <- melt(sindex)
+sindex1 <- sindex %>%
+  # convert state to factor and reverse order of levels
+  mutate(variable=factor(variable,levels=rev(sort(unique(variable))))) %>%
+  # create a new variable from count
+  mutate(valuefactor=cut(value,breaks=c(-3,-0.005,-0.002,0,0.002,0.005,max(value,na.rm=T)),
+                         labels=c("<-0.005","-0.005~-0.002","-0.002~0","0~0.002","0.002~0.005",">0.005"))) %>%
+  # change level order
+  mutate(valuefactor=factor(as.character(valuefactor),levels=rev(levels(valuefactor))))
+
+textcol <- "grey40"
+color <- colorRampPalette(colors = c("blue",'white',"red"))(7)
+
+ggplot(sindex1,aes(x=varname,y=variable,fill=valuefactor))+
+  geom_tile(colour="white",size=0.2)+
+  guides(fill=guide_legend(title="Sensitivity \nIndex"))+
+  labs(x="",y="",title="A-")+
+  scale_y_discrete(labels=c('CH4','NPP','ER','NEE','GPP'))+
+  scale_x_discrete(labels=c('AceProdACmax','bdnr','br_mr','DeadH2Methanogens', 'k_dom', 'dom_diffus','dsladlai','flnr','GrowACEMethanogens','GrowH2Methanogens', 'grperc', 'KACE', 'froot_leaf',  
+                            'YAceMethanogens','YH2Methanogens'))+
+  # scale_fill_manual(values=c("#d53e4f","#f46d43","#fdae61","#fee08b","#e6f598","#abdda4"),na.value = "grey90")+
+  scale_fill_manual(values = color,na.value = "grey90")+
+  #coord_fixed()+
+  theme_grey(base_size=10)+
+  theme_bw()+
+  theme(legend.position="right",legend.direction="vertical",
+        legend.title=element_text(colour=textcol),
+        legend.margin=margin(grid::unit(0,"cm")),
+        legend.text=element_text(colour=textcol,size=7,face="bold"),
+        legend.key.height=grid::unit(0.8,"cm"),
+        legend.key.width=grid::unit(0.2,"cm"),
+        axis.text.x=element_text(size=10,colour=textcol,vjust = 1,hjust = 1,angle = 45),
+        axis.text.y=element_text(vjust=0.2,colour=textcol),
+        axis.ticks=element_line(size=0.4),
+        plot.background=element_blank(),
+        panel.border=element_blank(),
+        plot.margin=margin(0.7,0.4,0.1,0.2,"cm"),
+        plot.title=element_text(colour=textcol,hjust=0,size=14,face="bold"))
+
+################BBBBBBBBBBBBBBBBBBBBBBBBB################################################################
+sindex <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex+20.csv')
+sindex <- melt(sindex)
+
+Limitcode=c(-0.01,0.01) #Percent
+legendbreakcode<-c(-0.01, -0.005,0 ,0.005, 0.01)
+colorcode=c("blue","white","red") #Percent
+txtax<-c(0:14)+0.75
+txta<-c("+")
+xinterceptSet<-c(1:15)
+ggplot(sindex, aes(x=varname,y=variable,fill=value))+
+  geom_tile(color="white", size=0.1) + 
+  theme_bw() + 
+  scale_fill_gradientn(name="Sensitivity \nIndex",colours=colorcode,breaks=legendbreakcode,limits=Limitcode,oob=scales::squish)+
+  scale_x_discrete(labels = c('AceProdACmax','bdnr','br_mr','DeadH2Methanogens', 'k_dom', 'dom_diffus','dsladlai','flnr','GrowACEMethanogens','GrowH2Methanogens', 'grperc', 'KACE', 'rootleaf',  
+                              'YAceMethanogens','YH2Methanogens'))+
+  scale_y_discrete(labels=c('GPP','NEE','ER','NPP','CH4'))+
+  labs(subtitle = "B + ")+
+  annotate(geom="text",x=txtax,y=0.3,label=txta,size =6,hjust ="bottom",vjust ="bottom")+
+  coord_equal()+
+  theme(
+    plot.margin=unit(c(1,1,1,2), "cm"),
+    legend.position='right',
+    legend.margin = margin(1, 1, 1, -5),
+    axis.ticks.x=element_blank(),
+    axis.title.x =element_blank(),
+    axis.title.y=element_blank(),
+    axis.text.y = element_text(size=12,color="black"),
+    axis.text.x = element_text(size=12,color="black",hjust=1,vjust=-0.1,angle = 90),
+    legend.text=element_text(size=8),
+    legend.title =element_text(size=8),
+    legend.key.size =unit(0.9,'cm'),
+    legend.key.width=unit(0.2,'cm'),
+    legend.key=element_rect(colour = "transparent", fill = "white"),
+    legend.background=element_rect(fill="transparent"),
+    panel.grid=element_blank()
+  )
+#################new b ##########################
+sindex <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex+20.csv')
+sindex <- melt(sindex)
+sindex1 <- sindex %>%
+  # convert state to factor and reverse order of levels
+  mutate(variable=factor(variable,levels=rev(sort(unique(variable))))) %>%
+  # create a new variable from count
+  mutate(valuefactor=cut(value,breaks=c(-3,-0.005,-0.002,0,0.002,0.005,max(value,na.rm=T)),
+                         labels=c("<-0.005","-0.005~-0.002","-0.002~0","0~0.002","0.002~0.005",">0.005"))) %>%
+  # change level order
+  mutate(valuefactor=factor(as.character(valuefactor),levels=rev(levels(valuefactor))))
+
+textcol <- "grey40"
+color <- colorRampPalette(colors = c("blue",'white',"red"))(7)
+# p <- 
+ggplot(sindex1,aes(x=varname,y=variable,fill=valuefactor))+
+  geom_tile(colour="white",size=0.2)+
+  guides(fill=guide_legend(title="Sensitivity \nIndex"))+
+  labs(x="",y="",title="B+")+
+  scale_y_discrete(labels=c('CH4','NPP','ER','NEE','GPP'))+
+  scale_x_discrete(labels=c('AceProdACmax','bdnr','br_mr','DeadH2Methanogens', 'k_dom', 'dom_diffus','dsladlai','flnr','GrowACEMethanogens','GrowH2Methanogens', 'grperc', 'KACE', 'froot_leaf',  
+                            'YAceMethanogens','YH2Methanogens'))+
+  # scale_fill_manual(values=c("#d53e4f","#f46d43","#fdae61","#fee08b","#e6f598","#abdda4"),na.value = "grey90")+  #"#ddf1da"
+  #coord_fixed()+
+  scale_fill_manual(values = color,na.value = "grey90")+
+  theme_grey(base_size=10)+
+  theme(legend.position="right",legend.direction="vertical",
+        legend.title=element_text(colour=textcol),
+        legend.margin=margin(grid::unit(0,"cm")),
+        legend.text=element_text(colour=textcol,size=7,face="bold"),
+        legend.key.height=grid::unit(0.8,"cm"),
+        legend.key.width=grid::unit(0.2,"cm"),
+        axis.text.x=element_text(size=10,colour=textcol,vjust = 1,hjust = 1,angle = 45),
+        axis.text.y=element_text(vjust=0.2,colour=textcol),
+        axis.ticks=element_line(size=0.4),
+        plot.background=element_blank(),
+        panel.border=element_blank(),
+        plot.margin=margin(0.7,0.4,0.1,0.2,"cm"),
+        plot.title=element_text(colour=textcol,hjust=0,size=14,face="bold"))
+
+#export figure
+# ggsave(p,filename="sindex-b.png",height=5.5,width=8.8,units="in",dpi=200)
+##### ab#######
+sindex_a <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex-20-3.csv')
+sindex_b <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex+20-3.csv')
+sindex <- matrix(ncol = 6,nrow = 36)
+colnames(sindex) <- c('varname','gpp','nee','er','npp','ch4')
+sindex_a <- as.matrix(sindex_a)
+sindex_b <- as.matrix(sindex_b)
+sindex[c(seq(1,36,2)),] <- sindex_a[1:18,2:7]
+sindex[c(seq(2,36,2)),] <- sindex_b[1:18,2:7]
+write.csv(sindex,file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex_ab-3.csv')
+####graph####
+sindex <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex_ab-2.csv',header = T)
+sindex <- melt(sindex)
+sindex1 <- sindex %>%
+  # convert state to factor and reverse order of levels
+  mutate(variable=factor(variable,levels=rev(sort(unique(variable))))) %>%
+  # create a new variable from count
+  mutate(valuefactor=cut(value,breaks=c(-10,-0.002,0,0.002,max(value,na.rm=T)),
+                         labels=c("<-0.002","-0.002~0","0~0.002",">0.002"))) %>%
+  # change level order
+  mutate(valuefactor=factor(as.character(valuefactor),levels=rev(levels(valuefactor))))
+
+textcol <- "grey40"
+color <- colorRampPalette(colors = c("red",'white',"blue"))(4)
+# p <- 
+txtx<-c(1:18)*2-1.2
+txt<-c("- +")
+xinterceptSet<-c(1:18)*2+0.5
+ggplot(sindex1,aes(x=varname,y=variable,fill=valuefactor))+
+  geom_tile(colour="white",size=0.2)+
+  guides(fill=guide_legend(title="Sensitivity \nIndex"))+
+  labs(x="",y="",title="Changbai Mountains")+
+  scale_y_discrete(labels=c('CH4','NPP','ER','NEE','GPP'))+
+  scale_x_discrete(labels=c('AceProdACmax','','bdnr','','br_mr','','DeadACEMethanogens','','DeadH2Methanogens','', 'DeadMethanotrophs','','k_dom', 
+                            '','dom_diffus','','flnr','','GrowACEMethanogens','','GrowH2Methanogens','','GrowRmethanotrophs', 
+                            '','grperc', '','KACE', '','froot_leaf', '','YAceMethanogens','','YH2Methanogens','','YMethanotrophs',''))+
+  # scale_fill_manual(values=c("#d53e4f","#f46d43","#fdae61","#fee08b","#e6f598","#abdda4"),na.value = "grey90")+  #"#ddf1da"
+  annotate(geom="text",x=txtx,y=0.3,label=txt,size =6,hjust ="bottom",vjust ="bottom")+
+  coord_fixed()+
+  geom_vline(xintercept=xinterceptSet, color = "grey",size=0.5)+
+  scale_fill_manual(values = color,na.value = "grey90")+
+  theme_grey(base_size=10)+
+  theme(legend.position="right",legend.direction="vertical",
+        legend.title=element_text(colour=textcol),
+        legend.margin=margin(grid::unit(0,"cm")),
+        legend.text=element_text(colour=textcol,size=7,face="bold"),
+        legend.key.height=grid::unit(0.8,"cm"),
+        legend.key.width=grid::unit(0.2,"cm"),
+        axis.text.x=element_text(size=10,colour=textcol,vjust = 1,hjust = 1,angle = 60),
+        axis.text.y=element_text(vjust=0.2,colour=textcol),
+        axis.ticks=element_line(size=0.4),
+        plot.background=element_blank(),
+        panel.border=element_blank(),
+        plot.margin=margin(0.7,0.4,0.1,0.2,"cm"),
+        plot.title=element_text(colour=textcol,hjust=0,size=14,face="bold"))
+
+####graph####
+sindex <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/CLM/result/sindex_ab-3.csv',header = T)
+sindex <- melt(sindex)
+sindex1 <- sindex %>%
+  # convert state to factor and reverse order of levels
+  mutate(variable=factor(variable,levels=rev(sort(unique(variable))))) %>%
+  # create a new variable from count
+  mutate(valuefactor=cut(value,breaks=c(-20,-0.002,0,0.002,max(value,na.rm=T)),
+                         labels=c("<-0.002","-0.002~0","0~0.002",">0.002"))) %>%
+  # change level order
+  mutate(valuefactor=factor(as.character(valuefactor),levels=rev(levels(valuefactor))))
+
+textcol <- "grey40"
+color <- colorRampPalette(colors = c("red",'white',"blue"))(4)
+# p <- 
+txtx<-c(1:18)*2-1.2
+txt<-c("- +")
+xinterceptSet<-c(1:18)*2+0.5
+ggplot(sindex1,aes(x=varname,y=variable,fill=valuefactor))+
+  geom_tile(colour="white",size=0.2)+
+  guides(fill=guide_legend(title="Sensitivity \nIndex"))+
+  labs(x="",y="",title="Changbai Mountains")+
+  scale_y_discrete(labels=c('CH4','NPP','ER','NEE','GPP'))+
+  scale_x_discrete(labels=c('AceProdACmax','','bdnr','','br_mr','','DeadACEMethanogens','','DeadH2Methanogens','', 'DeadMethanotrophs','','k_dom', 
+                            '','dom_diffus','','flnr','','GrowACEMethanogens','','GrowH2Methanogens','','GrowRmethanotrophs', 
+                            '','grperc', '','KACE', '','froot_leaf', '','YAceMethanogens','','YH2Methanogens','','YMethanotrophs',''))+
+  # scale_fill_manual(values=c("#d53e4f","#f46d43","#fdae61","#fee08b","#e6f598","#abdda4"),na.value = "grey90")+  #"#ddf1da"
+  annotate(geom="text",x=txtx,y=0.3,label=txt,size =6,hjust ="bottom",vjust ="bottom")+
+  coord_fixed()+
+  geom_vline(xintercept=xinterceptSet, color = "grey",size=0.5)+
+  scale_fill_manual(values = color,na.value = "grey90")+
+  theme_grey(base_size=10)+
+  theme(legend.position="right",legend.direction="vertical",
+        legend.title=element_text(colour=textcol),
+        legend.margin=margin(grid::unit(0,"cm")),
+        legend.text=element_text(colour=textcol,size=7,face="bold"),
+        legend.key.height=grid::unit(0.8,"cm"),
+        legend.key.width=grid::unit(0.2,"cm"),
+        axis.text.x=element_text(size=10,colour=textcol,vjust = 1,hjust = 1,angle = 60),
+        axis.text.y=element_text(vjust=0.2,colour=textcol),
+        axis.ticks=element_line(size=0.4),
+        plot.background=element_blank(),
+        panel.border=element_blank(),
+        plot.margin=margin(0.7,0.4,0.1,0.2,"cm"),
+        plot.title=element_text(colour=textcol,hjust=0,size=14,face="bold"))
