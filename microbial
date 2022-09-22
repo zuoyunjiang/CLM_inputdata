@@ -1,0 +1,130 @@
+library(ggplot2)
+library(directlabels)
+library(RColorBrewer)
+library(reshape2)
+library(knitr)
+library(basicTrendline)
+########################MH 2013#####################
+v_data <- cbind(s1_data[,1:2],s2_data$ACE_methanogens,s3_data$ACE_methanogens,s4_data$ACE_methanogens
+                ,s5_data$ACE_methanogens,s6_data$ACE_methanogens,s7_data$ACE_methanogens,s8_data$ACE_methanogens)
+colnames(v_data) <- c('DOY','S1','S2','S3','S4','S5','S6','S7','S8')
+
+mydata <- melt(v_data,id.vars = c('DOY'),variable.name = 'Depth',value.name = 'ACE')
+testdata <- mydata[which(mydata$DOY == 180),]
+color <- colorRampPalette(colors = c("red",'white',"blue"))(8)
+ggplot(mydata,aes(x = DOY, y = ACE,fill = Depth,shape = Depth))+
+  geom_line()+
+  geom_point(size  =4)+
+  # scale_y_continuous(position = 'right')+
+  scale_fill_manual(values=color)+
+  scale_shape_manual(values=c(21,22,23,24,21,22,23,24))+
+  theme_classic()
+
+mydata1 <- mydata
+mydata1$Dep <- NA
+mydata1$Dep[which(mydata1$Depth == 'S1')] <- 0.007
+mydata1$Dep[which(mydata1$Depth == 'S2')]<- 0.028
+mydata1$Dep[which(mydata1$Depth == 'S3')] <- 0.062
+mydata1$Dep[which(mydata1$Depth == 'S4')] <- 0.119
+mydata1$Dep[which(mydata1$Depth == 'S5')] <- 0.212
+mydata1$Dep[which(mydata1$Depth == 'S6')] <- 0.366
+mydata1$Dep[which(mydata1$Depth == 'S7')] <- 0.619
+mydata1$Dep[which(mydata1$Depth == 'S8')] <- 1.000
+
+ggplot(mydata1, aes(x=DOY, y = Dep ,z= ACE, fill=ACE)) + 
+  geom_contour(aes(colour = after_stat(level))) + 
+  theme_classic()
+
+mean_data2 <- aggregate(mydata1$ACE,by = list(mydata1$Dep),mean,na.rm = T)
+ggplot(data = mean_data2,aes(x = Group.1,y  = x))+
+  geom_line()+
+  geom_point(size  =4, colour = 'black')+
+  coord_flip()+
+  scale_x_reverse()+
+  scale_y_continuous(position = 'right')+
+  # scale_fill_manual(values=c("#FF9641","#FF5B4E","#B887C3","#38C25D"))+
+  # scale_shape_manual(values=c(21,22,23,24))+
+  theme_classic()
+
+
+p1 <- ggplot(mydata1,aes(x=DOY,y=Dep,z=ACE))+
+  # geom_tile(aes(fill=ACE))+#根据高度填充没有进行平滑处理
+  geom_raster(aes(fill=ACE), interpolate=TRUE)+###进行平滑处理
+  scale_fill_gradientn(colours=colormap)+
+  scale_y_reverse()+
+  geom_contour(aes(colour= ..level..),breaks=breaks_lines,color="black")+
+  labs(x="X-Axis",y="Y-Axis",fill="Z-Value")+
+  # theme_bw()+
+  theme(
+    panel.background = element_blank(),
+    axis.title=element_text(size=15,face="plain",color="black"),
+    axis.text = element_text(size=13,face="plain",color="black"),
+    legend.title=element_text(size=13,face="plain",color="black"),
+    legend.text = element_text(size=11,face="plain",color="black"),
+    legend.background = element_blank(),
+    legend.position ='left')
+color1 <- colorRampPalette(colors = c("red",'white',"blue"))(8)
+ggscatterhist(
+  mydata1, x = "DOY", y = "ACE",
+  color = "Dep", size = 3, alpha = 0.6,
+  # palette = 'RdPu',
+  # palette = c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE" ,"#4393C3", "#2166AC"),
+  # margin.plot = "boxplot",
+  margin.params = list(fill = "Dep", color = "black", size = 0.2),
+  ggtheme = theme_bw()
+)
+##################
+v_data1 <- cbind(s1_data[,1:2],s2_data$CHO,s3_data$CHO,s4_data$CHO
+                ,s5_data$CHO,s6_data$CHO,s7_data$CHO,s8_data$CHO)
+colnames(v_data1) <- c('DOY','S1','S2','S3','S4','S5','S6','S7','S8')
+
+mydata2 <- melt(v_data1,id.vars = c('DOY'),variable.name = 'Depth',value.name = 'CHO')
+# testdata <- mydata2[which(mydata2$DOY == 180),]
+color <- colorRampPalette(colors = c("red",'white',"blue"))(8)
+ggplot(mydata2,aes(x = DOY, y = CHO,fill = Depth,shape = Depth))+
+  geom_line()+
+  geom_point(size  =4)+
+  # scale_y_continuous(position = 'right')+
+  scale_fill_manual(values=color)+
+  scale_shape_manual(values=c(21,22,23,24,21,22,23,24))+
+  theme_classic()
+
+mydata3 <- mydata2
+mydata3$Dep <- NA
+mydata3$Dep[which(mydata3$Depth == 'S1')] <- 0.007
+mydata3$Dep[which(mydata3$Depth == 'S2')]<- 0.028
+mydata3$Dep[which(mydata3$Depth == 'S3')] <- 0.062
+mydata3$Dep[which(mydata3$Depth == 'S4')] <- 0.119
+mydata3$Dep[which(mydata3$Depth == 'S5')] <- 0.212
+mydata3$Dep[which(mydata3$Depth == 'S6')] <- 0.366
+mydata3$Dep[which(mydata3$Depth == 'S7')] <- 0.619
+mydata3$Dep[which(mydata3$Depth == 'S8')] <- 1.000
+
+ggplot(mydata3, aes(x=DOY, y = Dep ,z= CHO, fill=CHO)) + 
+  geom_contour(aes(colour = after_stat(level))) + 
+  theme_classic()
+
+mean_data3 <- aggregate(mydata3$CHO,by = list(mydata3$Dep),mean,na.rm = T)
+ggplot(data = mean_data3,aes(x = Group.1,y  = x))+
+  geom_line()+
+  geom_point(size  =4, colour = 'black')+
+  coord_flip()+
+  scale_x_reverse()+
+  scale_y_continuous(position = 'right')+
+  # scale_fill_manual(values=c("#FF9641","#FF5B4E","#B887C3","#38C25D"))+
+  # scale_shape_manual(values=c(21,22,23,24))+
+  theme_classic()
+
+#M51
+MODEL_AC <- cbind(mean_data2,mean_data3$x)
+colnames(MODEL_AC) <- c('DEPTH','ACE','CHO')
+MODEL_AC1 <- melt(MODEL_AC,id.vars = c('DEPTH'),variable.name = 'MICROBE_PRO',value.name = 'VALUE')
+ggplot(data = MODEL_AC1,aes(x = DEPTH,y  = VALUE,fill = MICROBE_PRO,shape = MICROBE_PRO))+
+  geom_line()+
+  geom_point(size  =4, colour = 'black')+
+  coord_flip()+
+  scale_x_reverse()+
+  scale_y_continuous(position = 'right')+
+  scale_fill_manual(values=c("#FF9641","#38C25D"))+
+  scale_shape_manual(values=c(21,22))+
+  theme_classic()
