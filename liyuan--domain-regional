@@ -1,0 +1,26 @@
+rm(list=ls())
+
+data_area <-read.table("area_mask_rmhead.txt", sep= "", header = F)
+data_mask <-read.table("mask_mask_rmhead.txt", sep= "", header = F)
+data_frac <-read.table("frac_mask_rmhead.txt", sep= "", header = F)
+
+data_area_list = c(t(data_area))
+data_mask_list = c(t(data_mask))
+data_frac_list = c(t(data_frac))
+
+lat <- rep(seq(89.75, -89.75, -0.5), each = 720)
+lon <- rep(seq(-179.75, 179.75, 0.5), times = 360)
+
+
+data_in <- data.frame(lat, lon, data_area_list, data_mask_list, data_frac_list)
+colnames(data_in) = c("lat", "lon", "area", "mask", "fraction")
+
+data_in$lon1 = (data_in$lon) %% 360
+
+data_out <- data_in[order(data_in$lat, data_in$lon1),]
+
+data_out[data_out == -9999] <- 0
+
+write.table(data_out[,3], "area_trans_bk.txt", col.names = F, row.names = F)
+write.table(data_out[,4], "mask_trans_bk.txt", col.names = F, row.names = F)
+write.table(data_out[,5], "frac_trans_bk.txt", col.names = F, row.names = F)
