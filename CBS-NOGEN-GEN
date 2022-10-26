@@ -1,0 +1,176 @@
+#####Yunjiang zuo####
+#####Sanjiang Plain#######
+library(ncdf4)
+library(ggplot2)
+library(caret)
+library(cowplot)
+library(reshape2)
+library(plot3D)
+library(RColorBrewer)
+library(dplyr)
+library(scales)
+library(ggpmisc)
+# install.packages("coolbutuseless/threed")
+# devtools::install_github('coolbutuseless/ggthreed')
+library(ggthreed)
+# install.packages('plotrix')
+library(plotrix)
+library(grid)
+
+#############gpp############
+
+try_data <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/cbs/cbs_t.clm2.h0.2011-01-01-00000 (110).nc')
+try_data1 <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/cbs/mic-gen/cbs_nogens.clm2.h0.2011-01-01-00000.nc')
+OBS <- read.table(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/fluxdata/nee-gpp-er.csv',header =T, sep = ',')
+GPP_MODEL <- ncvar_get(nc = try_data,varid = 'GPP')
+NOGEN <- ncvar_get(nc = try_data1,varid = 'GPP')
+GPP_MODEL <- GPP_MODEL*1000
+NOGEN <- NOGEN*1000
+GPP_OBS <-  OBS[1:89,17]*-1
+GPP_day <- as.matrix(OBS[1:89,16])
+
+DOY <- matrix(nrow =819 ,ncol =1)
+DOY[1:89,1] <- GPP_day
+DOY[90:454,1] <- 1:365
+DOY[455:819,1] <- 1:365
+OBS <- GPP_OBS
+MODEL <- GPP_MODEL
+NOGEN <- NOGEN
+GPP <- matrix(nrow =819 ,ncol =1)
+GPP[1:89,1] <- OBS
+GPP[90:454,1] <- MODEL
+GPP[455:819,1] <- NOGEN
+TYPE <- c(rep('OBS',89),rep('MODEL_GEN',365),rep('MODEL_NOGEN',365))
+mydata <- data.frame(DOY,GPP,TYPE)
+
+#
+ggplot(mydata,aes(DOY,GPP,shape = TYPE,colour = TYPE, linetype = TYPE))+
+  geom_line(size = 2)+
+  geom_point(size = 4)+
+  labs(title = "Changbai Mountains")+
+  xlab('DOY')+
+  ylab(expression(GPP/g*m^{-2}*d^{-1}))+
+  scale_color_manual(name = '',
+                     values = c('OBS' = 'red','MODEL_GEN' = 'black','MODEL_NOGEN' = 'blue'),
+                     labels = c('OBS','MODEL_GEN','MODEL_NOGEN'))+
+  scale_shape_manual(name = '',
+                     values = c('OBS' = 19,'MODEL_GEN' = NA,'MODEL_NOGEN' =NA),
+                     labels = c('OBS','MODEL_GEN','MODEL_NOGEN'))+
+  scale_linetype_manual(name = '',
+                        values = c('OBS' = 0,'MODEL_GEN' = 1,'MODEL_NOGEN' =2),
+                        labels = c('OBS','MODEL_GEN','MODEL_NOGEN'))+
+  theme_bw()+
+  theme(
+    legend.position = c(0.85,0.9),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
+
+# ##ggline##
+# gppdata <- matrix(ncol = 3,nrow = 124)
+# colnames(gppdata) <- c('Modeled_GPP','Observed_GPP','Station')
+# gppdata[1:124,1] <- GPP_MODEL[150:273] 
+# gppdata[1:124,2] <- GPP_OBS[30:153]
+# gppdata[1:124,3] <- rep('(a) Sanjiang Plain',124)
+# gppdata <- data.frame(gppdata)
+# attach(gppdata)
+# gppdata[,1] <- as.double(gppdata[,1])
+# gppdata[,2] <- as.double(gppdata[,2])
+# gppdata[,1:2] <- round(gppdata[,1:2],2)
+# ggplot(data = gppdata,aes(x = Observed_GPP, y = Modeled_GPP),color = 'black')+
+#   geom_point(size = 4)+
+#   geom_smooth(method = 'lm',formula = y~x ,se = F, size = 2)+
+#   # geom_abline(intercept = 0, slope = 1,color = 'blue')+
+#   facet_wrap(~Station,scales = 'free',nrow = 1) +
+#   stat_poly_eq(aes(label = paste(stat(rr.label),
+#                                  stat(p.value.label),
+#                                  sep ="*\",\"*")), 
+#                label.x.npc = "right", label.y.npc = 0.1,
+#                formula = y ~ x, parse = TRUE, size = 10)+
+#   # ylab(expression(Modeled_GPP/g*m^{-2}*d^{-1}))+
+#   # xlab(expression(Observed_GPP/g*m^{-2}*d^{-1}))+
+#   scale_y_continuous(labels = label_number(accuracy = 0.1))+
+#   theme(
+#     # axis.title.y.left = 'Modeled_GPP/g*m^{-2}*d^{-1}',
+#     # axis.title.x.bottom = 'Observed_GPP/g*m^{-2}*d^{-1}',
+#     axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+#     axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+#     axis.title.y = element_text(size = 22,face = 'bold'),
+#     axis.title.x = element_text(size = 22,face = 'bold'),
+#     strip.text = element_text(size = 20,face = 'bold')# change title size
+#   )
+
+###
+#### methane #####      
+# try_data <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/test_t/wed_t.clm2.h0.2012-01-01-00000 (25).nc')
+# try_data <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/test_t/test_t.clm2.h0.2012-01-01-00000 (459).nc')
+# try_data1 <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/sindex/origin/nogens.clm2.h0.2012-01-01-00000 (3).nc')
+methane_model <- ncvar_get(nc = try_data,varid = 'CH4_SURF_NETFLUX')
+mnogen <- ncvar_get(nc = try_data1,varid = 'CH4_SURF_NETFLUX')
+methane_sanjiang <- read.csv(file = 'D:/AAAA-资料E盘/CLM/DATA/长白山/fluxdata/methane.csv', sep = ',',header = T )
+methane_obs <- as.double(as.matrix(methane_sanjiang[,2]))
+methane_model <- methane_model*12*3600*1000
+mnogen <- mnogen*12*3600*1000
+# x <- 121:273
+# data_me <- data.frame(x,methane_obs)
+m_doy <- methane_sanjiang[1:6,1]
+#
+DOY <- matrix(nrow =736 ,ncol =1)
+DOY[1:6,1] <- m_doy
+DOY[7:371] <- 1:365
+DOY[372:736] <- 1:365
+OBS <- as.matrix(methane_obs)
+MODEL <- as.matrix(methane_model)
+mnogen1 <- as.matrix(mnogen)
+METHANE <- matrix(nrow =736 ,ncol =1)
+METHANE[1:6,1] <- OBS
+METHANE[7:371] <- MODEL
+METHANE[372:736] <- mnogen1
+TYPE <- c(rep('OBS',6),rep('MODEL_GEN',365),rep('MODEL_NOGEN',365))
+mydata <- data.frame(DOY,METHANE,TYPE)
+ggplot(mydata,aes(DOY,METHANE,shape = TYPE,colour = TYPE, linetype = TYPE))+
+  geom_line(size = 2)+
+  geom_point(size = 4)+
+  labs(title = "Changbai Mountains")+
+  xlab('DOY')+
+  ylab(expression(Methane/mg*m^{-2}*d^{-1}))+
+  # scale_x_continuous(position = 'top')+
+  scale_color_manual(name = '',
+                     values = c('OBS' = 'red','MODEL_GEN' = 'black','MODEL_NOGEN' = 'blue'),
+                     labels = c('OBS','MODEL_GEN','MODEL_NOGEN'))+
+  scale_shape_manual(name = '',
+                     values = c('OBS' = 19,'MODEL_GEN' = NA,'MODEL_NOGEN' =NA),
+                     labels = c('OBS','MODEL_GEN','MODEL_NOGEN'))+
+  scale_linetype_manual(name = '',
+                        values = c('OBS' = 0,'MODEL_GEN' = 1,'MODEL_NOGEN' =2),
+                        labels = c('OBS','MODEL_GEN','MODEL_NOGEN'))+
+  theme_bw()+
+  theme(
+    legend.position = c(0.85,0.9),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    # axis.text.x.top = element_text(size = 22,face = 'bold'),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    # axis.title.x.top = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
