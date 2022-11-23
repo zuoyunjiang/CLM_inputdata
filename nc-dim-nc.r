@@ -6,7 +6,7 @@ a <- list.dirs('D:/AAAA-资料E盘/CLM/inputdata/future inputdata/inputdat/')
 a <- a[c(-1,-2,-6,-10,-14)]
 setpath <- list.dirs('D:/Rtest/future/')
 setpath <- setpath[c(-1,-2,-6,-10,-14)]
-for(i in 7:12){
+for(i in 1:12){
   b <- list.files(a[i])
   b_path <- paste(a[i],'/',b,sep = '')
   n <- length(b_path)
