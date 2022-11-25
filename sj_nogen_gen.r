@@ -1614,3 +1614,294 @@ ggplot(data = MODEL_om2,aes(x = DEPTH,y  = VALUE,fill = MICROBE_PRO,color = MICR
   plot.title=element_text(colour='black',hjust=0.5,size=16,face="bold"))
 
 
+#### variable ####
+try_data <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/test_t/test_t.clm2.h0.2019-01-01-00000 (119).nc')
+# nogen_data <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/sindex/origin/nogens.clm2.h0.2019-01-01-00000 (3).nc')
+
+TSA <- ncvar_get(nc = try_data,varid = 'TSA')
+RAIN <- ncvar_get(nc = try_data,varid = 'RAIN')
+ZWT <- ncvar_get(nc = try_data,varid = 'ZWT')
+Soil_temp <- ncvar_get(nc = try_data,varid = 'TSOI_10CM')
+Soil_WATER <- ncvar_get(nc = try_data,varid = 'H2OSOI')
+Soil_WATER_10 <- apply(as.matrix(Soil_WATER[1:3,]),2,FUN = mean)
+DOC <- ncvar_get(nc = try_data,varid = 'CDOCS')
+DOC_10 <- apply(as.matrix(DOC[1:3,]),2,FUN = mean)
+#CACES_PROD
+ACEPRO <- ncvar_get(nc = try_data,varid = 'CACES_PROD')
+ACEPRO_10 <- apply(as.matrix(ACEPRO[1:3,]),2,FUN = sum)
+#CCON_CO2S_UNSAT 
+CO2 <- ncvar_get(nc = try_data,varid = 'CCON_CO2S_UNSAT')
+S_CO2 <- apply(as.matrix(CO2[1:3,]),2,FUN = sum)
+H2 <- ncvar_get(nc = try_data,varid = 'CCON_H2S_UNSAT')
+S_H2 <- apply(as.matrix(H2[1:3,]),2,FUN = sum)
+
+CO2PROCH4 <- ncvar_get(nc = try_data,varid = 'CH4_PROD_CO2_DEPTH_SAT')
+ACEPROCH4 <- ncvar_get(nc = try_data,varid = 'CH4_PROD_ACE_DEPTH_SAT')
+CH4OXIDAER <- ncvar_get(nc = try_data,varid = 'CH4_OXID_O2_DEPTH_UNSAT')
+CH4OXIDANAER <- ncvar_get(nc = try_data,varid = 'CH4_OXID_AOM_DEPTH_SAT')
+CO2PROCH4_10 <- apply(as.matrix(CO2PROCH4[1:3,]),2,FUN = sum)
+ACEPROCH4_10 <- apply(as.matrix(ACEPROCH4[1:3,]),2,FUN = sum)
+CH4OXIDAER_10 <- apply(as.matrix(CH4OXIDAER[1:3,]),2,FUN = sum)
+CH4OXIDANAER_10<- apply(as.matrix(CH4OXIDANAER[1:3,]),2,FUN = sum)
+
+
+sj_variable <- cbind(TSA,RAIN,Soil_temp,Soil_WATER_10,DOC_10,ACEPRO_10,S_CO2,S_H2,CO2PROCH4_10,
+                     ACEPROCH4_10,CH4OXIDAER_10,CH4OXIDANAER_10,ZWT)
+colnames(sj_variable) <- c('Air_temp','Rain','soiltemp','SWC','DOC','ACE','CO2','H2','CO2PROCH4',
+                           'ACEPROCH4','CH4OXIDAER','ANAER','ZWT')
+sj_variable <- as.data.frame(sj_variable)
+SJGEN <- sj_variable[150:270,]
+
+
+ggplot(SJGEN, aes(x= CO2PROCH4, y=Air_temp)) + 
+  geom_point(shape=18, color="blue")+
+  geom_smooth(method=lm, se=FALSE, linetype="dashed",
+              color="darkred")
+ggplot(SJGEN, aes(x= ACEPROCH4, y=Air_temp)) + 
+  geom_point(shape=18, color="blue")+
+  geom_smooth(method=lm, se=FALSE, linetype="dashed",
+              color="darkred")
+
+
+ggplot(SJGEN, aes(x= CH4OXIDAER, y=SWC)) + 
+  geom_point(shape=18, color="blue")+
+  geom_smooth(method=lm, se=FALSE, linetype="dashed",
+              color="darkred")
+
+
+
+
+
+###nogen###
+try_data <- nc_open(filename = 'D:/AAAA-资料E盘/CLM/microbe/sindex/origin/nogens.clm2.h0.2019-01-01-00000 (3).nc')
+
+
+TSA <- ncvar_get(nc = try_data,varid = 'TSA')
+RAIN <- ncvar_get(nc = try_data,varid = 'RAIN')
+Soil_temp <- ncvar_get(nc = try_data,varid = 'TSOI_10CM')
+ZWT <- ncvar_get(nc = try_data,varid = 'ZWT')
+Soil_WATER <- ncvar_get(nc = try_data,varid = 'H2OSOI')
+Soil_WATER_10 <- apply(as.matrix(Soil_WATER[1:3,]),2,FUN = mean)
+DOC <- ncvar_get(nc = try_data,varid = 'CDOCS')
+DOC_10 <- apply(as.matrix(DOC[1:3,]),2,FUN = mean)
+#CACES_PROD
+ACEPRO <- ncvar_get(nc = try_data,varid = 'CACES_PROD')
+ACEPRO_10 <- apply(as.matrix(ACEPRO[1:3,]),2,FUN = sum)
+#CCON_CO2S_UNSAT 
+CO2 <- ncvar_get(nc = try_data,varid = 'CCON_CO2S_UNSAT')
+S_CO2 <- apply(as.matrix(CO2[1:3,]),2,FUN = sum)
+H2 <- ncvar_get(nc = try_data,varid = 'CCON_H2S_UNSAT')
+S_H2 <- apply(as.matrix(H2[1:3,]),2,FUN = sum)
+
+CO2PROCH4 <- ncvar_get(nc = try_data,varid = 'CH4_PROD_CO2_DEPTH_SAT')
+ACEPROCH4 <- ncvar_get(nc = try_data,varid = 'CH4_PROD_ACE_DEPTH_SAT')
+CH4OXIDAER <- ncvar_get(nc = try_data,varid = 'CH4_OXID_O2_DEPTH_UNSAT')
+CH4OXIDANAER <- ncvar_get(nc = try_data,varid = 'CH4_OXID_AOM_DEPTH_SAT')
+CO2PROCH4_10 <- apply(as.matrix(CO2PROCH4[1:3,]),2,FUN = sum)
+ACEPROCH4_10 <- apply(as.matrix(ACEPROCH4[1:3,]),2,FUN = sum)
+CH4OXIDAER_10 <- apply(as.matrix(CH4OXIDAER[1:3,]),2,FUN = sum)
+CH4OXIDANAER_10<- apply(as.matrix(CH4OXIDANAER[1:3,]),2,FUN = sum)
+
+
+sj_variable1 <- cbind(TSA,RAIN,Soil_temp,Soil_WATER_10,DOC_10,ACEPRO_10,S_CO2,S_H2,CO2PROCH4_10,
+                     ACEPROCH4_10,CH4OXIDAER_10,CH4OXIDANAER_10,ZWT)
+colnames(sj_variable1) <- c('Air_temp','Rain','soiltemp','SWC','DOC','ACE','CO2','H2','CO2PROCH4',
+                           'ACEPROCH4','CH4OXIDAER','ANAER','ZWT')
+sj_variable1 <- as.data.frame(sj_variable1)
+SJNOGEN <- sj_variable1[150:270,]
+
+###
+ggplot(SJNOGEN, aes(x= CO2PROCH4, y=Air_temp)) + 
+  geom_point(shape=18, color="blue")+
+  geom_smooth(method=lm, se=FALSE, linetype="dashed",
+              color="darkred")
+ggplot(SJNOGEN, aes(x= ACEPROCH4, y=Air_temp)) + 
+  geom_point(shape=18, color="blue")+
+  geom_smooth(method=lm, se=FALSE, linetype="dashed",
+              color="darkred")
+ggplot(SJNOGEN, aes(x= SWC, y=CH4OXIDAER)) + 
+  geom_point(shape=18, color="blue")+
+  geom_smooth(method=lm, se=FALSE, linetype="dashed",
+              color="darkred")
+######combind########
+
+SJ_COMB <- rbind(SJGEN,SJNOGEN)
+SJ_COMB$Group <- rep(c('GEN','NOGEN'),each = 121)
+
+SJ_COMB$Air_temp <- min.max.norm(SJ_COMB$Air_temp)
+SJ_COMB$ZWT <- min.max.norm(SJ_COMB$ZWT)
+SJ_COMB$CO2PROCH4 <- min.max.norm(SJ_COMB$CO2PROCH4)
+SJ_COMB$ACEPROCH4 <- min.max.norm(SJ_COMB$ACEPROCH4)
+
+ggplot(SJ_COMB, aes(x= CO2PROCH4, y=Air_temp,color = Group,shape = Group)) + 
+  geom_point(size =4 )+
+  geom_smooth(method=lm, aes(fill = Group))+
+  theme_base()+
+  theme(
+    legend.position = c(0.85,0.1),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
+
+ggplot(SJ_COMB, aes(x= ACEPROCH4, y=Air_temp,color = Group,shape = Group)) + 
+  geom_point(size =4)+
+  geom_smooth(method=lm, aes(fill = Group))+
+  theme_base()+
+  theme(
+    legend.position = c(0.85,0.1),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
+
+
+SJ_COMB1 <- rbind(sj_variable[120:150,],sj_variable1[120:150,])
+# SJ_COMB1 <- SJ_COMB1[120:150,]
+SJ_COMB1$Group <- rep(c('GEN','NOGEN'),each = 31)
+SJ_COMB1$Air_temp <- min.max.norm(SJ_COMB1$Air_temp)
+SJ_COMB1$ZWT <- min.max.norm(SJ_COMB1$ZWT)
+SJ_COMB1$CO2PROCH4 <- min.max.norm(SJ_COMB1$CO2PROCH4)
+SJ_COMB1$ACEPROCH4 <- min.max.norm(SJ_COMB1$ACEPROCH4)
+SJ_COMB1$CH4OXIDAER <- min.max.norm(SJ_COMB1$CH4OXIDAER)
+SJ_COMB1$ANAER <- min.max.norm(SJ_COMB1$ANAER)
+
+ggplot(SJ_COMB1, aes(x= CH4OXIDAER, y=ZWT,color = Group,shape = Group)) + 
+  geom_point(size =4)+
+  geom_smooth(method=lm, aes(fill = Group))+
+  theme_base()+
+  theme(
+    legend.position = c(0.85,0.1),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
+
+ggplot(SJ_COMB1, aes(x= ANAER, y=ZWT,color = Group,shape = Group)) + 
+  geom_point(size =4)+
+  geom_smooth(method=lm, aes(fill = Group))+
+  theme_base()+
+  theme(
+    legend.position = c(0.85,0.1),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
+
+ggplot(SJ_COMB, aes(x= CO2PROCH4, y=ZWT,color = Group,shape = Group)) + 
+  geom_point(size =4)+
+  geom_smooth(method=lm, aes(fill = Group))+
+  theme_base()+
+  theme(
+    legend.position = c(0.85,0.1),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
+
+#####FACETWRAP####
+A <- SJ_COMB[,c(1,9,10,14)]
+B <- melt(A,id.var = c('Air_temp','Group'))
+
+B$Type <- rep(c('CO2->CH4','ACE->CH4'),each = 242)
+
+ggplot(B, aes(x=Air_temp, y= value,color = Group,shape = Group)) + 
+  geom_point(size =4 )+
+  geom_smooth(method=lm, aes(fill = Group))+
+  facet_wrap(~Type)+
+  theme_base()+
+  theme(
+    strip.text.x = element_text(size = 22,colour = 'black'),
+    legend.position = c(0.1,0.9),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
+
+A1 <- SJ_COMB1[,c(11,12,13,14)]
+B1 <- melt(A1,id.var = c('ZWT','Group'))
+
+B1$Type <- rep(c('AER','ANAER'),each = 62)
+
+ggplot(B1, aes(x= ZWT, y=value,color = Group,shape = Group)) + 
+  geom_point(size =4)+
+  geom_smooth(method=lm, aes(fill = Group))+
+  facet_wrap(~Type)+
+  theme_base()+
+  theme(
+    strip.text.x = element_text(size = 22),
+    legend.position = c(0.1,0.9),
+    legend.title=element_text(colour='black'),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.text=element_text(colour='black',size=22,face="bold"),
+    legend.key.height=grid::unit(0.5,"cm"),
+    legend.key.width=grid::unit(0.5,"cm"),
+    axis.text.x=element_text(size=22,colour='black',vjust = 1,hjust = 1),
+    axis.text.y=element_text(size=22,vjust=0.2,colour='black'),
+    axis.title.y = element_text(size = 22,face = 'bold'),
+    axis.title.x = element_text(size = 22,face = 'bold'),
+    axis.ticks=element_line(size=0.5),
+    plot.background=element_blank(),
+    # panel.border=element_blank(), # tianjia bianjie
+    plot.margin=margin(0.5,1.5,0.5,1.3,"cm"),
+    plot.title=element_text(colour='black',hjust=0.5,size=24,face="bold"))
