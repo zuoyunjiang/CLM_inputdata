@@ -598,4 +598,264 @@ gg <- ggdraw() +
 #showtext_begin()
 #print(gg)
 #showtext_end()
+#######90s########
+
+SJ_PLANT <- apply(sPM[75:84,],2,FUN = mean)
+SJ_DIF <- apply(sDIF[75:84,],2,FUN = mean)
+SJ_EBUL<- apply(sEBUL[75:84,],2,FUN = mean)
+SJ_TRANS <- rbind(SJ_PLANT,SJ_DIF,SJ_EBUL)
+
+SJ_TRANS <- as.data.frame(SJ_TRANS)
+SJ_TRANS$TYPE <- c("Plant","Diffusion", 'Ebuliton')
+#####sj-126#####
+data <- data.frame(
+  group = SJ_TRANS$TYPE,
+  value = SJ_TRANS$SSP1.2.6
+)
+data <- data %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data$percent <- paste(round(data$prop,2),'%',sep = '')
+
+# Basic piechart
+sjpie126 <- ggplot(data, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+#####sj-245#####
+data2 <- data.frame(
+  group = SJ_TRANS$TYPE,
+  value = SJ_TRANS$SSP2.4.5
+)
+data2 <- data2 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data2$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data2$percent <- paste(round(data2$prop,2),'%',sep = '')
+
+# Basic piechart
+sjpie245 <- ggplot(data2, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+######sj-585######
+data3 <- data.frame(
+  group = SJ_TRANS$TYPE,
+  value = SJ_TRANS$SSP5.8.5
+)
+data3 <- data3 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data3$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data3$percent <- paste(round(data3$prop,2),'%',sep = '')
+
+# Basic piechart
+sjpie585 <- ggplot(data3, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+
+
+######cbs#####
+
+####PDE####16-25
+# cbsPM
+# cbsDIF
+# cbsEBUL
+cbs_PLANT <- apply(cbsPM[75:84,],2,FUN = mean)
+cbs_DIF <- apply(cbsDIF[75:84,],2,FUN = mean)
+cbs_EBUL<- apply(cbsEBUL[75:84,],2,FUN = mean)
+cbs_TRANS <- rbind(cbs_PLANT,cbs_DIF,cbs_EBUL)
+
+
+cbs_TRANS <- as.data.frame(cbs_TRANS)
+cbs_TRANS$TYPE <- c("Plant","Diffusion", 'Ebuliton')
+
+####cbs-126####
+data4 <- data.frame(
+  group = cbs_TRANS$TYPE,
+  value = cbs_TRANS$SSP1.2.6
+)
+data4 <- data4 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data4$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data4$percent <- paste(round(data4$prop,2),'%',sep = '')
+
+# Basic piechart
+cbspie126 <- ggplot(data4, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+#####cbs-245####
+data5 <- data.frame(
+  group = cbs_TRANS$TYPE,
+  value = cbs_TRANS$SSP2.4.5
+)
+data5 <- data5 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data5$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data5$percent <- paste(round(data5$prop,2),'%',sep = '')
+
+# Basic piechart
+cbspie245 <- ggplot(data5, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+#####cbs-585#####
+data6 <- data.frame(
+  group = cbs_TRANS$TYPE,
+  value = cbs_TRANS$SSP5.8.5
+)
+data6 <- data6 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data6$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data6$percent <- paste(round(data6$prop,2),'%',sep = '')
+
+# Basic piechart
+cbspie585 <- ggplot(data6, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+####PDE####16-25
+# xxalPM
+# xxalDIF
+# xxalEBUL
+xxal_PLANT <- apply(xxalPM[75:84,],2,FUN = mean)
+xxal_DIF <- apply(xxalDIF[75:84,],2,FUN = mean)
+xxal_EBUL<- apply(xxalEBUL[75:84,],2,FUN = mean)
+xxal_TRANS <- rbind(xxal_PLANT,xxal_DIF,xxal_EBUL)
+
+
+xxal_TRANS <- as.data.frame(xxal_TRANS)
+xxal_TRANS$TYPE <- c("Plant","Diffusion", 'Ebuliton')
+
+
+####xxal-126####
+data7 <- data.frame(
+  group = xxal_TRANS$TYPE,
+  value = xxal_TRANS$SSP1.2.6
+)
+data7 <- data7 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data7$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data7$percent <- paste(round(data7$prop,2),'%',sep = '')
+
+# Basic piechart
+xxalpie126 <- ggplot(data7, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+#####xxal-245####
+data8 <- data.frame(
+  group = xxal_TRANS$TYPE,
+  value = xxal_TRANS$SSP2.4.5
+)
+data8 <- data8 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data8$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data8$percent <- paste(round(data8$prop,2),'%',sep = '')
+
+# Basic piechart
+xxalpie245 <- ggplot(data8, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+#####xxal-585#####
+data9 <- data.frame(
+  group = xxal_TRANS$TYPE,
+  value = xxal_TRANS$SSP5.8.5
+)
+data9 <- data9 %>% 
+  arrange(desc(group)) %>%
+  mutate(prop = value / sum(data9$value) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop )
+data9$percent <- paste(round(data9$prop,2),'%',sep = '')
+
+# Basic piechart
+xxalpie585 <- ggplot(data9, aes(x="", y=prop, fill=group)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  theme_void() + 
+  theme(legend.position="none") +
+  
+  geom_text(aes(y = ypos, label = percent), color = "white", size=6) +
+  scale_fill_brewer(palette="Set1")
+
+
+
+#####combine#####
+# library(customLayout)
+# library(gridExtra)# 创建排版画布
+# lay1 <- lay_new(matrix(1:6,ncol = 2),widths = c(1,1))
+# lay2 <- lay_new(matrix(1:3))
+# cl <- lay_bind_col(lay1, lay2, widths = c(2, 1))
+# lay_show(cl)
+# lay_set(cl)
+# 
+# sjpie126
+# sjpie245
+# sjpie585
+# cbspie126
+# cbspie245
+# cbspie585
+# xxalpie126
+# xxalpie245
+# xxalpie585
+
+gg2 <- ggdraw() +     
+  draw_plot(sjpie126, 0, 0.66, 0.33, 0.33) + 
+  draw_plot(sjpie245, 0, 0.33, 0.33, 0.33) + 
+  draw_plot(sjpie585, 0, 0, 0.33, 0.33) + 
+  draw_plot(cbspie126, 0.33, 0.66, 0.33, 0.33) + 
+  draw_plot(cbspie245, 0.33,0.33, 0.33, 0.33) + 
+  draw_plot(cbspie585, 0.33,0, 0.33, 0.33) + 
+  draw_plot(xxalpie126, 0.66, 0.66, 0.33, 0.33) + 
+  draw_plot(xxalpie245, 0.66, 0.33, 0.33, 0.33) + 
+  draw_plot(xxalpie585, 0.66, 0, 0.33, 0.33)
+# draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = 15, colour = "cyan", family = "Dancing") # 加上标签，
 
