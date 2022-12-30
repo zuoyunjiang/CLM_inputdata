@@ -152,7 +152,7 @@ line_bar <-
   geom_col(aes(fill = Scenarios), position = position_dodge2(preserve = 'single')) +
   geom_errorbar(aes(ymin = mean - se, ymax = mean + se),
                 position = position_dodge2(preserve = 'single', padding = 0.5))+
-  geom_text(aes(y=mean+se+1,label=Tukey), position = position_dodge2(0.9), size = 17, 
+  geom_text(aes(y=mean+se+1,label=Tukey), position = position_dodge2(0.9), size = 12, 
             hjust=0.5, colour = "black")+
   labs(x=" ", y="Sanjiang Plain") +
   scale_y_continuous(position = "right")+
@@ -272,7 +272,7 @@ cbs_bar <-
   geom_col(aes(fill = Scenarios), position = position_dodge2(preserve = 'single')) +
   geom_errorbar(aes(ymin = mean - se, ymax = mean + se),
                 position = position_dodge2(preserve = 'single', padding = 0.5))+
-  geom_text(aes(y=mean+se+0.5,label=Tukey), position = position_dodge2(0.9), size = 17, 
+  geom_text(aes(y=mean+se+0.5,label=Tukey), position = position_dodge2(0.9), size = 12, 
             hjust=0.5, colour = "black")+
   labs(x=" ", y="Changbai Mountain") +
   scale_y_continuous(position = "right")+
@@ -391,7 +391,7 @@ xxal_bar <-
   geom_col(aes(fill = Scenarios), position = position_dodge2(preserve = 'single')) +
   geom_errorbar(aes(ymin = mean - se, ymax = mean + se),
                 position = position_dodge2(preserve = 'single', padding = 0.5))+
-  geom_text(aes(y=mean+se+1,label=Tukey), position = position_dodge2(0.9), size = 17, 
+  geom_text(aes(y=mean+se+1,label=Tukey), position = position_dodge2(0.9), size = 12, 
             hjust=0.5, colour = "black")+
   labs(x=" ", y="Lesser Khingan Mountain") +
   scale_y_continuous(position = "right")+
