@@ -415,4 +415,4 @@ plot_grid(sj_line,sj_bar,cbs_line,cbs_bar,xxal_line,xxal_bar,
           label_size = 22,
           label_x = 0.1,
           ncol =2,
-          align = 'v')
+          align = 'hv')
