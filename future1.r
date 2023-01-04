@@ -480,7 +480,7 @@ jsspHM <- melt(sHM, id.vars ='Year', variable.name = 'Scenarios', value.name = '
 
 ggplot(jsspHM, aes(x = Year, y =  HM, color = Scenarios))+
   geom_line(size = 2)+
-  labs(x = 'Year',y = 'HM (mol/m3)')+
+  labs(x = 'Year',y = 'HM (gC/m3)')+
   theme_base()+
   theme(
     legend.position = c(0.1,0.8),
@@ -534,7 +534,7 @@ jsspAER <- melt(sAER, id.vars ='Year', variable.name = 'Scenarios', value.name =
 
 ggplot(jsspAER, aes(x = Year, y =  AER, color = Scenarios))+
   geom_line(size = 2)+
-  labs(x = 'Year',y = 'AER(mol/m3)')+
+  labs(x = 'Year',y = 'AER(gC/m3)')+
   theme_base()+
   theme(
     legend.position = c(0.1,0.8),
@@ -588,7 +588,7 @@ ggplot(jsspAER, aes(x = Year, y =  AER, color = Scenarios))+
  
  ggplot(jsspANAER, aes(x = Year, y =  ANAER, color = Scenarios))+
    geom_line(size = 2)+
-   labs(x = 'Year', y = 'ANAER(mol/m3)')+
+   labs(x = 'Year', y = 'ANAER(gC/m3)')+
    theme_base()+
    theme(
      legend.position = c(0.1,0.8),
