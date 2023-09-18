@@ -816,3 +816,98 @@ sd(cdf4$Default[366:730])/mean(cdf4$Default[366:730])
 sum(cdf1$Parameterization[1:12])/sum(cdf1$Default[1:12])
 sum(cdf1$Parameterization[13:24])/sum(cdf1$Default[13:24])
 
+cdf
+cdf <- rbind(df,df1,df2,df3,df41,df51,df6,df7)
+df
+df_data <- melt(df, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df_data$value <- min.max.norm(df_data$value)
+df1
+df1_data <- melt(df1, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df1_data$value <- min.max.norm(df1_data$value)
+df2
+df2_data <- melt(df2, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df2_data$value <- min.max.norm(df2_data$value)
+df3
+df3_data <- melt(df3, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df3_data$value <- min.max.norm(df3_data$value)
+df41
+df41_data <- melt(df41, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df41_data$value <- min.max.norm(df41_data$value)
+df51
+df51_data <- melt(df51, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df51_data$value <- min.max.norm(df51_data$value)
+df6
+df6_data <- melt(df6, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df6_data$value <- min.max.norm(df6_data$value)
+df7
+df7_data <- melt(df7, id.vars = c("DOY", "SITE", "TYPE"), measure.vars = c("Parameterization", "Default"))
+df7_data$value <- min.max.norm(df7_data$value)
+
+cdf_data <- rbind(df_data,df1_data,df2_data,df3_data,df41_data,df51_data,df6_data,df7_data)
+ggplot(cdf_data) +
+  geom_line(aes(x = DOY, y = value, color = variable), linetype = "solid", size = 1) +
+  labs(
+    title = "",
+    x = "DOY",
+    y = "Methane production"
+  ) +
+  scale_color_manual(values = c("Parameterization" = "#1f77b4", "Default" = "#ff7f0e")) +  # 设置颜色
+  facet_grid(TYPE ~ SITE, scales = "free_x") +  # 根据站点和类型分面
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title.x = element_text(size = 14, margin = margin(t = 10)),
+    axis.title.y = element_text(size = 14, margin = margin(r = 10)),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.position = "right",  # 将图例放在图的右侧
+    legend.title = element_blank(),  # 去掉图例标题
+    legend.text = element_text(size = 12),
+    panel.background = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 14, face = "bold"),
+    strip.background = element_rect(fill = "lightgray", color = "gray", size = 0.5)
+  )
+cdf_data$SITE[which(cdf_data$SITE == "Sallie's fen")] <- c('Sallie')
+cdf_data$SITE <- factor(cdf_data$SITE,levels = c('Sanjiang Plain','Changbai Mountain','Dajiuhu Peatland',"Sallie"))
+# 加载必要的包
+library(ggplot2)
+facet_labels <- data.frame(site = unique(cdf_data$SITE), label = c("(a)", "(b)", "(c)", "(d)"))
+facet_labels$site <- factor(facet_labels$site,levels =c('Sanjiang Plain','Changbai Mountain','Dajiuhu Peatland',"Sallie"))
+
+# 修改字体和大小
+font_size <- 14
+font_family <- "Times New Roman"
+
+# 创建适合出版的主题
+custom_theme <- theme(
+  text = element_text(family = font_family, size = font_size),
+  plot.title = element_text(hjust = 0.5, size = 16, face = "bold", family = font_family),
+  # axis.title.x = element_text(size = font_size, margin = margin(t = 10)),
+  # axis.title.y = element_text(size = font_size, margin = margin(r = 10)),
+  axis.text.x = element_text(size = font_size,color = "black"),
+  axis.text.y = element_text(size = font_size,color = "black"),
+  legend.title = element_blank(),  # 去掉图例标题
+  legend.text = element_text(size = font_size,color = "black"),
+  legend.position = c(0.92,0.45),
+  panel.background = element_blank(),
+  panel.border = element_rect(color = "black", fill = NA, size = 1),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  strip.text = element_text(size = font_size, face = "bold")  # 设置strip的背景为透明
+)
+
+# 创建图形并应用自定义主题
+ggplot(cdf_data) +
+  geom_line(aes(x = DOY, y = value, color = variable), linetype = "solid", size = 1) +
+  labs(
+    title = "",
+    x = "DOY",
+    y = "Methane production"
+  ) +
+  scale_color_manual(values = c("Parameterization" = "#8c564b", "Default" = "#888888")) +  # 设置颜色
+  facet_grid(TYPE ~ SITE, scales = "free_x") + 
+  theme_minimal()+# 根据站点和类型分面
+  custom_theme 
